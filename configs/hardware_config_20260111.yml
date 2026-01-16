@@ -1,0 +1,215 @@
+---
+device:
+    qubit:
+        f_ge: 3492.43
+        f_ef: 3369.1
+        ramp_sigma: 0.005
+        ramp_sigma_num: 3.0
+        pulses:
+            pi_ge:
+                gain: 0.18
+                sigma: 0.05
+                length: 0.0
+                sigma_inc: 4
+                type: gauss
+            hpi_ge:
+                gain: 0.089
+                sigma: 0.05
+                length: 0.0
+                sigma_inc: 4
+                type: gauss
+            pi_ef:
+                gain: 0.37
+                sigma: 0.02
+                length: 0.0
+                sigma_inc: 4
+                type: gauss
+            hpi_ef:
+                gain: 0.19
+                sigma: 0.02
+                length: 0.0
+                sigma_inc: 4
+                type: gauss
+        T1_ef: 0
+    readout:
+        trig_offset: 0.5
+        frequency: 7604.43
+        gain: 0.08
+        phase: 0
+        length: 3.0
+        threshold: 0
+        threshold_list:
+        - 0
+        final_delay: 250
+        confusion_matrix_with_reset:
+        - 0.9964530022802125
+        - 0.0035469977197875036
+        - 0.013768302080657598
+        - 0.9862316979193424
+        confusion_matrix_without_reset:
+        - 0.9383999999999999
+        - 0.0616000000000001
+        - 0.0458
+        - 0.9542
+        Ie: -6.432409414715889
+        Ig: -118.96377789073908
+        confusion_matrix_with_active_reset:
+        - 0.9624598666337363
+        - 0.03754013336626372
+        - 0.04206175540967661
+        - 0.9579382445903234
+    manipulate:
+        f_ge:
+        - 3797
+        - 4805
+        displace_sigma:
+        - 0.05
+        - 0.05
+        revival_time:
+        - 1.6610847113967175
+        - 1.7366205852286094
+        revival_stark_shift:
+        - -1.4667732064959451
+        - -2.6792227141937364
+        gain_to_alpha:
+        - 0.0006694025933692524
+        - 0.00020045
+        freq_to_alpha:
+        - 0.495062203431879
+        - 0.0
+        chi_ge:
+        - -0.310456
+        chi_ef:
+        - -0.24480332166390534
+        ramp_sigma: 0.005
+    storage:
+        storage_man_file: C:/_Lib/python/multimode_expts/man1_storage_swap_dataset.csv
+        idling_phase: 0
+        idling_freq: 0
+        ramp_sigma: 0.005
+        floquet_man_stor_file: C:/_Lib/python/multimode_expts/floquet_storage_swap_dataset.csv
+hw:
+    soc:
+        dacs:
+            qubit:
+                ch: 0
+                type: full
+                nyquist: 1
+                ftype: bandpass
+                bw: 1.0
+                fc: 3600
+                att:
+                - 0
+                - 0
+            readout:
+                ch: 1
+                type: full
+                nyquist: 2
+                ftype: bandpass
+                bw: 1.0
+                fc: 7600
+                att:
+                - 15
+                - 0
+            manipulate_in:
+                ch: 2
+                type: full
+                nyquist: 1
+                ftype: bandpass
+                bw: 2
+                fc: 3800
+                att:
+                - 20
+                - 0
+            storage_in:
+                ch: 6
+                type: full
+                nyquist: 2
+                ftype: bandpass
+                bw: 0.5
+                fc: 3600
+                att:
+                - 30
+                - 0
+            flux_low:
+                ch: 1
+                type: full
+                nyquist: 1
+                ftype: bandpass
+                bw: 0.5
+                fc: 3600
+                att:
+                - 30
+                - 0
+            flux_high:
+                ch: 1
+                type: full
+                nyquist: 1
+                ftype: bandpass
+                bw: 0.5
+                fc: 3600
+                att:
+                - 30
+                - 0
+            qubit_sideband:
+                ch: 0
+                type: full
+                nyquist: 1
+                ftype: bandpass
+                bw: 0.5
+                fc: 3600
+                att:
+                - 30
+                - 0
+        adcs:
+            readout:
+                ch: 10
+                type: dyn
+                nyquist: 2
+                ftype: bandpass
+                bw: 2.0
+                fc: 7600
+                att: 30
+aliases:
+    soc: QICK_lmm
+data_management:
+    plot_and_logs_folder: S:\Multimode\experiment\251218_lmm\data\plots_and_logs
+expt:
+    start: 2
+    step: 0.1
+    qubits: 0
+    expts: 25
+    reps: 100
+    rounds: 1
+    gain: 8000
+    freq: 2018.9300965076523
+    use_arb_waveform: 0
+    pi_ge_before: 0
+    pi_ef_before: 0
+    pi_ge_after: 0
+    pi_ef_after: 0
+    normalize: 0
+    active_reset: 0
+    check_man_reset:
+    - 0
+    - 0
+    swap_lossy: 0
+    check_man_reset_pi: []
+    prepulse: 1
+    pre_sweep_pulse:
+    -   - 3569.7132747040896
+        - 3426.6894248880017
+    -   - 3559
+        - 2916
+    -   - 0
+        - 0
+    -   - 0
+        - 0
+    -   - 2
+        - 2
+    -   - gauss
+        - gauss
+    -   - 0.035
+        - 0.035
+    err_amp_reps: 0
+    length_placeholder: 4.4
