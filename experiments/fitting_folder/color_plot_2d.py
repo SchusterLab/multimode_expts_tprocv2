@@ -8,7 +8,7 @@ class ColorPlot2D(GeneralFitting):
     Class for producing 2D color plots from x, y, and multiple z lists.
     The analyze function finds the maximum response time (x value) for each 2D color plot.
     """
-    def __init__(self, xlist, ylist, zlists, config=None, xlabel="X", ylabel="Y", zlabels=None):
+    def __init__(self, xlist, ylist, zlists, config=None, xlabel="X", ylabel="Y", zlabels=None, station=None):
         """
         xlist: 1D array of x values (e.g., time)
         ylist: 1D array of y values (e.g., frequency)
@@ -18,7 +18,7 @@ class ColorPlot2D(GeneralFitting):
         ylabel: label for y axis
         zlabels: list of labels for each z plot (optional)
         """
-        super().__init__(data=None, readout_per_round=2, threshold=-4.0, config=config)
+        super().__init__(data=None, readout_per_round=2, threshold=-4.0, config=config, station=station)
         self.xlist = np.array(xlist)
         self.ylist = np.array(ylist)
         self.zlists = [np.array(z) for z in zlists]
@@ -36,7 +36,8 @@ class ColorPlot2D(GeneralFitting):
         self.results = []
         for idx, z in enumerate(self.zlists):
             max_idx = np.unravel_index(np.argmax(z), z.shape)
-            y_idx, x_idx = max_idx
+            y_idx, x_idx = max_idx  # Corrected the order of indices
+            print(max_idx)
             max_val = z[y_idx, x_idx]
             max_x = self.xlist[x_idx]
             max_y = self.ylist[y_idx]
@@ -61,7 +62,13 @@ class ColorPlot2D(GeneralFitting):
         """
         for idx, z in enumerate(self.zlists):
             plt.figure(figsize=(10, 6))
-            plt.pcolormesh(self.xlist, self.ylist, z, shading='auto', cmap='viridis')
+
+            # Dynamically adjust shading based on dimensions
+            shading_mode = 'auto'
+            if z.shape == (len(self.ylist) - 1, len(self.xlist) - 1):
+                shading_mode = 'flat'
+
+            plt.pcolormesh(self.xlist, self.ylist, z, shading=shading_mode, cmap='viridis')
             zlabel = self.zlabels[idx] if self.zlabels and idx < len(self.zlabels) else "Response"
             plt.colorbar(label=zlabel)
             title = titles[idx] if titles and idx < len(titles) else f'2D Color Plot {idx+1}'
@@ -82,7 +89,11 @@ class ColorPlot2D(GeneralFitting):
             # Mark the maximum point if analysis was run
             if self.results and idx < len(self.results):
                 res = self.results[idx]
-                plt.plot(res['max_x'], res['max_y'], 'ko', label='Max Response')
+                plt.plot(res['max_x'], res['max_y'], 'ko', label=f'Max Response ({res["max_x"]:.2f}, {res["max_y"]:.2f}, Z: {res["max_value"]:.2f})')
+
+                # Add dashed lines intersecting at the maximum point
+                plt.axvline(res['max_x'], color='green', linestyle='--', label=f'Max X: {res["max_x"]:.2f}')
+                plt.axhline(res['max_y'], color='purple', linestyle='--', label=f'Max Y: {res["max_y"]:.2f}')
 
             plt.legend()
             plt.tight_layout()

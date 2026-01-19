@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class SpectroscopyFitting(GeneralFitting):
-    def __init__(self, data, signs=[1, 1, 1], config=None):
-        super().__init__(data, readout_per_round=1, threshold=-4.0, config=config)
+    def __init__(self, data, signs=[1, 1, 1], config=None, station=None):
+        super().__init__(data, readout_per_round=1, threshold=-4.0, config=config, station=station)
         self.signs = signs
 
 

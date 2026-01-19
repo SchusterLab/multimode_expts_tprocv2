@@ -7,13 +7,13 @@ device:
         ramp_sigma_num: 3.0
         pulses:
             pi_ge:
-                gain: 0.18
+                gain: 0.496
                 sigma: 0.05
                 length: 0.0
                 sigma_inc: 4
                 type: gauss
             hpi_ge:
-                gain: 0.089
+                gain: 0.23
                 sigma: 0.05
                 length: 0.0
                 sigma_inc: 4
@@ -33,11 +33,11 @@ device:
         T1_ef: 0
     readout:
         trig_offset: 0.5
-        frequency: 7604.43
-        gain: 0.08
-        phase: 0
-        length: 3.0
-        threshold: 0
+        frequency: 7604.0074298858635
+        gain: 0.10324726851004089
+        phase: -79.8008584014104
+        length: 10.0
+        threshold: -1.5305867767372812
         threshold_list:
         - 0
         final_delay: 250
@@ -99,7 +99,7 @@ hw:
                 bw: 1.0
                 fc: 3600
                 att:
-                - 0
+                - 30
                 - 0
             readout:
                 ch: 1
@@ -173,43 +173,4 @@ hw:
 aliases:
     soc: QICK_lmm
 data_management:
-    plot_and_logs_folder: S:\Multimode\experiment\251218_lmm\data\plots_and_logs
-expt:
-    start: 2
-    step: 0.1
-    qubits: 0
-    expts: 25
-    reps: 100
-    rounds: 1
-    gain: 8000
-    freq: 2018.9300965076523
-    use_arb_waveform: 0
-    pi_ge_before: 0
-    pi_ef_before: 0
-    pi_ge_after: 0
-    pi_ef_after: 0
-    normalize: 0
-    active_reset: 0
-    check_man_reset:
-    - 0
-    - 0
-    swap_lossy: 0
-    check_man_reset_pi: []
-    prepulse: 1
-    pre_sweep_pulse:
-    -   - 3569.7132747040896
-        - 3426.6894248880017
-    -   - 3559
-        - 2916
-    -   - 0
-        - 0
-    -   - 0
-        - 0
-    -   - 2
-        - 2
-    -   - gauss
-        - gauss
-    -   - 0.035
-        - 0.035
-    err_amp_reps: 0
-    length_placeholder: 4.4
+    output_root: S:\Multimode\experiment

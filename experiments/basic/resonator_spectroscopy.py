@@ -28,6 +28,7 @@ class ResonatorSpectroscopyProgram(MMProgram):
 
     def _initialize(self, cfg):
         self.cfg = AttrDict(self.cfg)
+        print(self.cfg.expt)
         self.readout_frequency = self.cfg.expt.frequency
         self.readout_length = self.cfg.expt.length 
         self.readout_gain = self.cfg.expt.gain
@@ -53,7 +54,7 @@ class ResonatorSpectroscopyProgram(MMProgram):
             for pname in self.prepulse_names:
                 self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)
                 print('Applied prepulse: ', pname)
-                # self.delay_auto(t=0.02, tag="wait_prepulse")
+                self.delay_auto(t=0.02, tag="wait_prepulse")
             
         self.measure_wrapper()
 
@@ -120,6 +121,7 @@ class ResonatorSpectroscopyExperiment(MMExperiment):
         """
         # Get qubit index and set final delay
         self.cfg.device.readout.final_delay = self.cfg.expt.final_delay
+        # print()
         
         # Set parameter to sweep
         self.param = {"label": "readout_pulse", "param": "freq", "param_type": "pulse"}

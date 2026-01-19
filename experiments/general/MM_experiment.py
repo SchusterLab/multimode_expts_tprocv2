@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm_notebook as tqdm
+from qick.asm_v2 import QickSweep1D
 from datetime import datetime
 from .MM_base import MMBase
 """
@@ -57,7 +58,7 @@ class MMExperiment(Experiment, MMBase):
             check_params: Whether to check for unexpected parameters (default True)
         """
         soccfg = cfg_dict["soccfg"]
-        path = cfg_dict["expt_path"]
+        path = cfg_dict["expt_path"] 
         config_file = cfg_dict["cfg_file"]
         im = cfg_dict["im"]
         # cfg = AttrDict(config_file)
@@ -86,10 +87,9 @@ class MMExperiment(Experiment, MMBase):
         self.parse_config()
         # print(self.soc)
         self.set_all_filters_()
-        print("all filters set")
+        # print("all filters set")
 # 
     
-
     def set_all_filters_(self):
         '''Set filters for all channels'''
         
@@ -97,13 +97,13 @@ class MMExperiment(Experiment, MMBase):
             """only bandpass filter"""
             self.soc.rfb_set_gen_filter(ch, fc=fc/1000, ftype=ftype, bw=bw)
             self.soc.rfb_set_gen_rf(ch, att1, att2)
-            print(f"Set DAC channel {ch} filter: ftype={ftype}, fc={fc} GHz, bw={bw} GHz, att1={att1} dB, att2={att2} dB")
+            # print(f"Set DAC channel {ch} filter: ftype={ftype}, fc={fc} GHz, bw={bw} GHz, att1={att1} dB, att2={att2} dB")
         
         def set_adc_filter_and_att(ch, ftype, fc, bw=None, att=0    ):
             """only bandpass filter"""
             self.soc.rfb_set_ro_filter(ch, fc=fc/1000, ftype=ftype, bw=bw)
             self.soc.rfb_set_ro_rf(ch, att)
-            print(f"Set ADC channel {ch} filter: ftype={ftype}, fc={fc} GHz, bw={bw} GHz, att={att} dB")
+            # print(f"Set ADC channel {ch} filter: ftype={ftype}, fc={fc} GHz, bw={bw} GHz, att={att} dB")
         # Readout 
         _= set_dac_filter_and_att(self.res_ch, 
                                                              self.res_ftype, 
@@ -177,7 +177,7 @@ class MMExperiment(Experiment, MMBase):
         # Set appropriate final delay based on whether active reset is enabled
        
         final_delay = self.cfg.device.readout.final_delay
-        print('final delay: ', final_delay)
+        # print('final delay: ', final_delay)
 
         # Create program instance
         # print(self.cfg)
@@ -186,21 +186,7 @@ class MMExperiment(Experiment, MMBase):
             final_delay=final_delay,
             cfg=self.cfg,
         )
-        # print(prog)
-        # Debugging KeyError for 'wait' tag
-        # Add debug statements to inspect the time_dict and ensure 'wait' tag is registered
-        # def debug_time_dict(prog):
-        #     print('Current time_dict contents:', prog.time_dict)
-        #     if 'wait' in prog.time_dict:
-        #         print("'wait' tag found in time_dict.")
-        #     else:
-        #         print("'wait' tag NOT found in time_dict.")
-                
-        # Call this function before the KeyError occurs
-        # debug_time_dict(prog)
-        
-        # pass
-
+    
         # Record start time
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -215,8 +201,7 @@ class MMExperiment(Experiment, MMBase):
             progress=progress,
         )
 
-        # Get swept parameter values
-        xpts_for_all_params = self.get_params(prog)
+        
 
         # Process I/Q data to get amplitude and phase
         # Shape: Readout channels / Readouts in Program / Loops / I and Q
@@ -232,12 +217,7 @@ class MMExperiment(Experiment, MMBase):
         data = {}
 
         # Add each swept parameter as a separate entry in the data dictionary
-        for param_name, xpts in xpts_for_all_params.items():
-            if param_name == "Null":
-                param_full_name = "xpts"
-            else:
-                param_full_name = f"xpts_{param_name}"
-            data[param_full_name] = xpts
+        self.add_swept_parameters_to_data(prog, data)
 
         # Add other data based on the compact flag
         if compact:
@@ -259,7 +239,12 @@ class MMExperiment(Experiment, MMBase):
         for key in data:
             data[key] = np.array(data[key])
         self.data = data
-        print(self.data)
+        # print(self.data)
+        # Clean up configuration after sweep
+        # only call uf self.param or self.sweep_other_params exist
+        if hasattr(self, 'param') or hasattr(self.cfg.expt, 'sweep_other_params'):
+            self.clean_config_after_sweep()
+
         return data
 
     
@@ -348,7 +333,8 @@ class MMExperiment(Experiment, MMBase):
 
         # Print fit quality metrics
         if verbose:
-            print(f"R2:{r2:.3f}\tFit par error:{fit_err:.3f}\t Best fit:{i_best}")
+            # print(f"R2:{r2:.3f}\tFit par error:{fit_err:.3f}\t Best fit:{i_best}")
+            pass
 
         self.get_status()
 
@@ -477,7 +463,7 @@ class MMExperiment(Experiment, MMBase):
             # Show initial guess if in debug mode
             if debug:
                 pinit = data["fit_init_" + ydata]
-                print(pinit)
+                # print(pinit)
                 ax[i].plot(
                     data["xpts"], fitfunc(data["xpts"], *pinit), label="Initial Guess"
                 )
@@ -634,7 +620,7 @@ class MMExperiment(Experiment, MMBase):
         if display:
             self.display(data, **disp_kwargs)
 
-    def save_data(self, data=None, verbose=False):
+    def save_data(self, data=None, verbose=True):
         """
         Save experiment data to disk.
 
@@ -646,8 +632,11 @@ class MMExperiment(Experiment, MMBase):
             Filename where data was saved
         """
         if verbose:
-            print(f"Saving {self.fname}")
+            # print(f"Saving {self.fname}")
+            # print(data)
+            pass
         super().save_data(data=data)
+        # print('Finished saving data')
         return self.fname
 
     def print(self):
@@ -655,7 +644,8 @@ class MMExperiment(Experiment, MMBase):
         Print out the experimental config
         """
         for key, value in self.cfg.expt.items():
-            print(f"{key}: {value}")
+            # print(f"{key}: {value}")
+            pass
 
     def get_status(self, max_err=1, min_r2=0.1):
         # Determine if experiment was successful based on fit quality
@@ -691,12 +681,14 @@ class MMExperiment(Experiment, MMBase):
         Returns:
             Array of parameter values
         """
-        if not hasattr(self, "params"):
-            self.params = {"Null": self.param}
+        # if not hasattr(self, "params"):
+        #     self.params = {"Null": self.param}
+        # if len(self.sweep_param.keys())==1: 
+        #     self.params = {"Null": self.param}
         
         xpts_for_all_params = {}
             
-        for param_tag, param in self.params.items():
+        for param_tag, param in self.sweep_param.items():
             
             if param["param_type"] == "pulse":
                 # Extract pulse parameter (amplitude, frequency, etc.)
@@ -709,6 +701,7 @@ class MMExperiment(Experiment, MMBase):
                     param["label"], param["param"], as_array=True
                 )
             xpts_for_all_params[param_tag] = xpts
+        # print(xpts_for_all_params)
             
         return xpts_for_all_params
 
@@ -798,3 +791,66 @@ class MMExperiment(Experiment, MMBase):
             self.data["hist_fit"] = popt
         except:
             self.data["scale_data"] = self.data["avgi"]
+
+    def add_swept_parameters_to_data(self, prog, data):
+        """
+        Add each swept parameter as a separate entry in the data dictionary.
+
+        Args:
+            prog: The program instance to extract parameters from.
+            data: The data dictionary to update with swept parameters.
+        """
+        # Get swept parameter values
+        xpts_for_all_params = self.get_params(prog)
+        for param_name, xpts in xpts_for_all_params.items():
+            if len(self.sweep_param.keys()) == 1:
+                param_full_name = "xpts"
+            else:
+                param_full_name = f"xpts_{param_name}"
+            data[param_full_name] = xpts
+            
+    def initialize_sweep_variables(self, params = None):
+        """Initialize sweep variables for the experiment."""
+        
+        for param_name, param_values in self.sweep_param.items():
+            # print('param name is ' + str(param_name) + ', param values are ' + str(param_values))
+            # param_values = AttrDict(param_values)
+            self.cfg.expt[param_name] = QickSweep1D(
+                param_name, param_values.start, param_values.start + param_values.step * param_values.expts
+            )
+            # self.sweep_param[param_name] = {
+            #     "label": param_values.label,
+            #     "param": param_values.param,
+            #     "param_type": param_values.param_type,
+            # }
+            # print('Initialized sweep variable:', self.cfg.expt[param_name])
+        self.cfg.expt.sweep_param = self.sweep_param
+
+            
+    def clean_config_after_sweep(self): 
+        """
+        Remove temporary sweep parameters after the experiment.
+        """
+        if self.sweep_param:  # Replace sweep_other_param with sweep_param
+            for param_name in self.sweep_param.keys():
+                self.cfg.expt[param_name] = None
+
+    def combine_sweep_params(self, primary_params, additional_params):
+        """
+        Combine two dictionaries of sweep parameters, ensuring all keys are included.
+
+        Args:
+            primary_params (dict): The primary sweep parameters.
+            additional_params (dict): Additional sweep parameters to merge.
+
+        Returns:
+            dict: Combined dictionary of sweep parameters.
+        """
+        combined_params = primary_params.copy()
+        if additional_params:
+            for key, value in additional_params.items():
+                if key not in combined_params:
+                    combined_params[key] = value
+        return combined_params
+
+

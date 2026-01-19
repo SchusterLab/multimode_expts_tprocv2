@@ -22,31 +22,39 @@ class PulseProbeSpectroscopyProgram(MMProgram):
         self.initialize_multiple_loops()
 
         # Create the main pulse based on cfg.expt parameters
-        pulse = {
-            "chan": self.cfg.expt.chan,
-            "freq": self.cfg.expt.freq,
-            "gain": self.cfg.expt.gain,
-            "phase": self.cfg.expt.phase,
-            "length": self.cfg.expt.length,
-            "type": self.cfg.expt.type,
-            "sigma": self.cfg.expt.sigma,
-            "sigma_inc": self.cfg.expt.sigma_inc,
-            "ramp_sigma": self.cfg.expt.ramp_sigma,
-            "ramp_sigma_inc": self.cfg.expt.ramp_sigma_inc,
-        }
+        # Define the main pulse parameters as a single dictionary
+        # self.cfg.expt.probe_pulse_param should include the following keys:
+        # - "chan": Channel for the pulse
+        # - "freq": Frequency of the pulse
+        # - "gain": Gain of the pulse
+        # - "phase": Phase of the pulse
+        # - "length": Length of the pulse
+        # - "type": Type of the pulse (e.g., 'gauss', 'flat_top')
+        # - "sigma": Sigma value for Gaussian pulses
+        # - "sigma_inc": Increment for sigma
+        # - "ramp_sigma": Ramp sigma for flat-top pulses
+        # - "ramp_sigma_inc": Increment for ramp sigma
+        pulse = self.cfg.expt.probe_pulse_param
+
         super().make_pulse(pulse, "probe_pulse")
 
         
 
     def _body(self, cfg):
         # Apply prepulses if specified
-        if self.cfg.expt.get("prepulse", False):
-            for pname in self.prepulse_names:
-                self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)
-                self.delay_auto(t=0.01, tag="wait_prepulse")
+        print('enetered main body')
+        # if self.adc_ch_type == 'dyn':
+        #     self.send_readoutconfig(ch=self.adc_ch, name="readout", t=0)
+        # cfg = AttrDict(self.cfg)
+        # if self.cfg.expt.get("prepulse", False):
+        #     for pname in self.prepulse_names:
+        #         self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)
+        #         self.delay_auto(t=0.01, tag="wait_prepulse" + pname)
 
         # Apply the main pulse
-        self.pulse(ch=self.cfg.expt.chan, name="probe_pulse", t=0)
+        self.pulse(ch=self.cfg.expt.probe_pulse_param.chan, name="probe_pulse", t=0)
+        print('applied main pulse')
+        
         self.measure_wrapper()
 
 class PulseProbeSpectroscopyExperiment(MMExperiment):
@@ -61,27 +69,31 @@ class PulseProbeSpectroscopyExperiment(MMExperiment):
         go=False,
     ):
         super().__init__(cfg_dict=cfg_dict, prefix=prefix, progress=progress)
-        if go:
-            super().run(display=display, progress=progress, save=save, analyze=analyze)
+        # if go:
+        #     super().run(display=display, progress=progress, save=save, analyze=analyze)
 
     def acquire(self, progress=False):
-        self.cfg.device.readout.final_delay = self.cfg.expt.final_delay
-        self.param = {"label": "pulse", "param": "freq", "param_type": "pulse"}
-        self.cfg.expt.frequency = QickSweep1D(
+        # self.cfg.device.readout.final_delay = self.cfg.expt.final_delay
+        self.param = {"label": "probe_pulse", "param": "freq", "param_type": "pulse"}
+        # Compute the frequency sweep separately
+        # Convert AttrDict to a standard dictionary
+        
+        freq_sweep = QickSweep1D(
             "freq_loop", self.cfg.expt.start, self.cfg.expt.start + self.cfg.expt.expts * self.cfg.expt.step
         )
+
+        # note if variable inside dict then the Attr Dict apllies beforehand will make it immutable.so have to do this correction
+        probe_pulse_param = dict(self.cfg.expt.probe_pulse_param)
+        probe_pulse_param['freq'] = freq_sweep
+        self.cfg.expt.probe_pulse_param = probe_pulse_param
+
         super().acquire(PulseProbeSpectroscopyProgram, progress=progress)
-        self.cfg.expt.frequency = 0
+        # self.cfg.expt.frequency = 0
+        self.cfg.expt.probe_pulse_param.freq = 0
         return self.data
 
     def analyze(self, data=None, fit=True, **kwargs):
-        if data is None:
-            data = self.data
-        if fit:
-            xdata = data["xpts"][1:-1]
-            ydata = data["amps"][1:-1]
-            data["fit"], data["fit_err"] = fitlor(xdata, ydata)
-        return data
+        pass
 
     def display(self, data=None, fit=True, **kwargs):
         if data is None:

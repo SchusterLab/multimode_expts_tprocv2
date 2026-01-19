@@ -5,8 +5,8 @@ import os
 
 class MM_DualRailRBFitting(GeneralFitting):
     def __init__(self, filename=None, file_prefix=None, data=None, readout_per_round=2, threshold=-4.0, config=None,
-                 prev_data=None, expt_path=None, title='RB', dir_path=None):
-        super().__init__(data, readout_per_round, threshold, config)
+                 prev_data=None, expt_path=None, title='RB', dir_path=None, station=None):
+        super().__init__(data, readout_per_round, threshold, config, station)
         self.filename = filename
         self.expt_path = expt_path
         self.prev_data = prev_data

@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class AmplitudeRabiFitting(GeneralFitting):
-    def __init__(self, data, readout_per_round=2, threshold=-4.0, config=None, fitparams=None):
-        super().__init__(data, readout_per_round, threshold, config)
+    def __init__(self, data, readout_per_round=2, threshold=-4.0, config=None, fitparams=None, station=None):
+        super().__init__(data, readout_per_round, threshold, config, station)
         self.fitparams = fitparams
         self.results = {}
 

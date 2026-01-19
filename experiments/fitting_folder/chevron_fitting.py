@@ -6,8 +6,8 @@ from scipy.fft import rfft, rfftfreq
 from copy import deepcopy
 
 class ChevronFitting(GeneralFitting):
-    def __init__(self, frequencies, time, response_matrix, config=None):
-        super().__init__(data=None, readout_per_round=2, threshold=-4.0, config=config)
+    def __init__(self, frequencies, time, response_matrix, config=None, station=None):
+        super().__init__(data=None, readout_per_round=2, threshold=-4.0, config=config, station=station)
         self.frequencies = frequencies
         self.time = time
         self.response_matrix = response_matrix

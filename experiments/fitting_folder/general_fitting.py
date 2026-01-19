@@ -12,15 +12,17 @@ from scipy.signal import find_peaks
 
 
 class GeneralFitting:
-    def __init__(self, data, readout_per_round=None, threshold=None, config=None):
+    def __init__(self, data, readout_per_round=None, threshold=None, config=None, station = None):
         self.cfg = config
         self.data = data
         if readout_per_round is None:
             readout_per_round = 4
-        if threshold is None:
-            threshold = self.cfg.device.readout.threshold
+        # if threshold is None:
+        #     threshold = self.cfg.device.readout.threshold
         self.readout_per_round = readout_per_round
         self.threshold = threshold
+        self.station = station
+        
     
 
     def bin_ss_data(self, conf=True):
@@ -201,7 +203,7 @@ class GeneralFitting:
         return Ilist, Qlist
 
 
-    def save_plot(self, fig, filename="plot.png"):
+    def save_plot(self, fig, filename="plot.png", subdir=None):
         """
         Save a matplotlib figure to the specified folder.
         Optionally append the image path to a markdown file for viewing.
@@ -212,43 +214,62 @@ class GeneralFitting:
         - filename: Name of the file (default: "plot.png").
         - markdown_path: Path to a markdown file to append the image (optional).
         """ 
-        plots_folder_path = "plots"
-        markdown_path = None
-        # print('entering save_plot') 
+        """
+        Save a matplotlib figure using the station's save_plot method.
 
-        # Extract markdown folder from config if available
-        if self.cfg and hasattr(self.cfg, "data_management"):
-            markdown_folder = getattr(self.cfg.data_management, "plot_and_logs_folder")
-            # print(f"Markdown folder path: {markdown_folder}")
-            plots_folder_path = markdown_folder + "/plots"
-            if markdown_folder:
-                os.makedirs(markdown_folder, exist_ok=True)
-                today_str = datetime.datetime.now().strftime("%Y-%m-%d")
-                markdown_path = os.path.join(markdown_folder, f"{today_str}.md")
-                if not os.path.exists(markdown_path):
-                    with open(markdown_path, "w") as f:
-                        f.write(f"# Plots for {today_str}\n\n")
+        Parameters:
+        - fig: matplotlib.figure.Figure object to save
+        - filename: Name of the file (default: "plot.png")
+        - subdir: Optional subdirectory within station's plot_path
 
-        now = datetime.datetime.now()
-        date_str = now.strftime("%Y-%m-%d_%H-%M-%S")
-        print("supertitle is ", fig._suptitle)
-        if fig._suptitle is not None:
-            fig._suptitle.set_text(fig._suptitle.get_text() + f" | {date_str} - {filename}")
-        else:
-            fig.suptitle(f"{date_str} - {filename}", fontsize=16)
-        #get tight layout
-        fig.tight_layout()
-        filename = f"{date_str}_{filename}"
-        os.makedirs(plots_folder_path, exist_ok=True)
-        filepath = os.path.join(plots_folder_path, filename)
-        fig.savefig(filepath)
-        print(f"Plot saved to {filepath}")
+        Raises:
+        - ValueError: If no station was provided during initialization
+        """
+        if self.station is None:
+            raise ValueError(
+                "No station provided to fitting class. "
+                "Cannot save plot without a MultimodeStation instance. "
+                "Pass station=<your_station> when initializing this fitting class."
+            )
 
-        if markdown_path is not None:
-            # Use relative path if markdown file is in the same folder or subfolder
-            rel_path = os.path.relpath(filepath, os.path.dirname(markdown_path))
-            md_line = f"![Plot]({rel_path})\n"
-            with open(markdown_path, "a") as md_file:
-                md_file.write(md_line)
-            print(f"Plot path appended to {markdown_path}")
+        return self.station.save_plot(fig, filename, subdir=subdir)
+        # plots_folder_path = "plots"
+        # markdown_path = None
+        # # print('entering save_plot') 
+
+        # # Extract markdown folder from config if available
+        # # if self.cfg and hasattr(self.cfg, "data_management"):
+        # markdown_folder = self.station.log_path#getattr(self.cfg.data_management, "plot_and_logs_folder")
+        # # print(f"Markdown folder path: {markdown_folder}")
+        # plots_folder_path = self.station.plot_path
+        # # if markdown_folder:
+        # #     os.makedirs(markdown_folder, exist_ok=True)
+        # #     today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+        # #     markdown_path = os.path.join(markdown_folder, f"{today_str}.md")
+        # #     if not os.path.exists(markdown_path):
+        # #         with open(markdown_path, "w") as f:
+        # #             f.write(f"# Plots for {today_str}\n\n")
+
+        # now = datetime.datetime.now()
+        # date_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+        # print("supertitle is ", fig._suptitle)
+        # if fig._suptitle is not None:
+        #     fig._suptitle.set_text(fig._suptitle.get_text() + f" | {date_str} - {filename}")
+        # else:
+        #     fig.suptitle(f"{date_str} - {filename}", fontsize=16)
+        # #get tight layout
+        # fig.tight_layout()
+        # filename = f"{date_str}_{filename}"
+        # os.makedirs(plots_folder_path, exist_ok=True)
+        # filepath = os.path.join(plots_folder_path, filename)
+        # fig.savefig(filepath)
+        # print(f"Plot saved to {filepath}")
+
+        # if markdown_path is not None:
+        #     # Use relative path if markdown file is in the same folder or subfolder
+        #     rel_path = os.path.relpath(filepath, os.path.dirname(markdown_path))
+        #     md_line = f"![Plot]({rel_path})\n"
+        #     with open(markdown_path, "a") as md_file:
+        #         md_file.write(md_line)
+        #     print(f"Plot path appended to {markdown_path}")
 

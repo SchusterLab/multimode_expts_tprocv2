@@ -68,7 +68,7 @@ class MMProgram(AveragerProgramV2, MMBase):
         # Update configuration with experiment-specific parameters
         self.cfg.update(self.cfg.expt)
         self.parse_config()  # parse the cfg to get the parameters
-        print(" I have parsed the config in MMProgram init")
+        # print(" I have parsed the config in MMProgram init")
         super().__init__(soccfg, self.cfg.expt.reps, final_delay, cfg=cfg)
         
         
@@ -222,6 +222,8 @@ class MMProgram(AveragerProgramV2, MMBase):
                     # add parameters from pulses to load to self.cfg.expt.prepulse[pname] for later reference 
                     self.cfg.expt.prepulse[pname]['chan'] = pulses_to_load[pname]['chan']
                     continue
+                else:
+                    print(f"prepulse name {pname} does not exist in pulses_to_load. ")
                 pulses_to_load[pname] = {
                     "freq": pp.freq,
                     "chan": pp.chan,
@@ -248,11 +250,13 @@ class MMProgram(AveragerProgramV2, MMBase):
                 "phase": 0
             }
             print('pulse_dict in initialize_waveforms', pulse_dict)
+            print('trying to make the pulse')
             self.make_pulse(pulse_dict, name)
     
     def initialize_multiple_loops(self): 
-        if self.cfg.expt.sweep_other_param: # not empty 
-            for param_name, param_values in self.cfg.expt.sweep_other_param.items():
+        if self.cfg.expt.sweep_param: # not empty 
+            print(self.cfg.expt.sweep_param)
+            for param_name, param_values in self.cfg.expt.sweep_param.items():
                 self.add_loop(param_name, param_values.expts)
      
     def measure_wrapper(self):
@@ -268,22 +272,23 @@ class MMProgram(AveragerProgramV2, MMBase):
         Args:
             cfg: Configuration dictionary
         """
-        
-        # if self.adc_ch_type == 'dyn':
-        #     self.send_readoutconfig(ch=self.adc_ch, name="readout", t=0)
-        # cfg = AttrDict(self.cfg)
+        print('sendingreadoutconfig')
+        if self.adc_ch_type == 'dyn':
+            self.send_readoutconfig(ch=self.adc_ch, name="readout", t=0)
+        cfg = AttrDict(self.cfg)
         # just to wait before reading out ...make sure no other pulse is running -- eesh 
         self.delay_auto(t=0.01, tag="wait_read")
         # Apply readout pulse to resonator]
         print("pulsing resonator")
         self.pulse(ch=self.res_ch, name="readout_pulse", t=0)
+        print('finished pulsing the resonator')
         # Trigger data acquisition
         self.trigger(
             ros=[self.adc_ch],
             pins=[0],
             t=self.trig_offset,
         )
-        
+        print('finished triggering ')
 
     def make_pulse(self, pulse, name):
         """
@@ -312,6 +317,7 @@ class MMProgram(AveragerProgramV2, MMBase):
             - Other (default): Constant amplitude pulse
         """
         pulse = AttrDict(pulse)  # Convert to attribute dictionary
+        print('pulse in make_pulse', pulse)
 
         # Common pulse parameters
         if "chan" not in pulse:
@@ -324,7 +330,7 @@ class MMProgram(AveragerProgramV2, MMBase):
             "phase": pulse.phase,  # Pulse phase
             "gain": pulse.gain,  # Pulse amplitude
         }
-        print('pulse_args', pulse_args)
+        # print('pulse_args', pulse_args)
 
         # Create different pulse types based on pulse.type
         if pulse.type == "gauss":
@@ -335,17 +341,18 @@ class MMProgram(AveragerProgramV2, MMBase):
             if "sigma_inc" in pulse:
                 length = pulse.sigma * pulse.sigma_inc  # Calculate from sigma
             else:
-                length = pulse.sigma*4  # Use provided length
+                length = pulse.sigma * 4  # Use provided length
 
             # Create Gaussian envelope
+            # print('cre')
             self.add_gauss(
                 ch=pulse.chan,
-                name="ramp",
+                name="ramp_" + str(name),
                 sigma=pulse.sigma,  # Width of Gaussian
                 length=length,
                 even_length=False,
             )
-            pulse_args["envelope"] = "ramp"  # Use Gaussian envelope
+            pulse_args["envelope"] = "ramp_" + str(name)  # Use Gaussian envelope
 
         # elif pulse.type == "flat_top":
         #     # Flat-top pulse with Gaussian rise/fall
@@ -381,14 +388,17 @@ class MMProgram(AveragerProgramV2, MMBase):
             # Determine pulse length
             if "length" in pulse:
                 length = pulse.length
+                print('using length parameter')
             else:
                 length = pulse.sigma
+                print('not using length parameter')
 
             style = "const"  # Constant amplitude
             pulse_args["length"] = length
 
         # Set pulse style and add to program
         pulse_args["style"] = style
+        print('pulse_args', pulse_args)
         self.add_pulse(**pulse_args)
 
 

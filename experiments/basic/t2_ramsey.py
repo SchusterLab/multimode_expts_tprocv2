@@ -45,7 +45,7 @@ class RamseyProgram(MMProgram):
         super().make_pulse(pulse, "pi2_read")
 
         # Create loop for sweeping wait time
-        self.add_loop("wait_loop", self.cfg.expt.expts)
+        # self.add_loop("wait_loop", self.cfg.expt.expts)
         self.initialize_multiple_loops()
 
 
@@ -215,28 +215,17 @@ class RamseyExperiment(MMExperiment):
             Measurement data dictionary
         """
         # Define parameter metadata for plotting
-        self.param = {"label": "wait", "param": "t", "param_type": "time"}
+        primary_param = {"label": "wait", "param": "t", "param_type": "time", 
+                      "start": self.cfg.expt.start, "step": self.cfg.expt.step, "expts": self.cfg.expt.expts}
 
         # Create a 1D sweep for the wait time from start to start+span
-        variable = "wait_time"
-        self.cfg.expt.wait_time = QickSweep1D(
-            "wait_loop", self.cfg.expt.start, self.cfg.expt.start + self.cfg.expt.step * self.cfg.expt.expts
-        )
-        print('sweeping wiat time from ', self.cfg.expt.start, ' to ', self.cfg.expt.step * self.cfg.expt.expts)
-        
-        
-        if self.cfg.expt.sweep_other_param: # not empty
-            self.params = {variable: self.param} # add the already initialzied paramer
-            for param_name, param_values in self.cfg.expt.sweep_other_param.items():
-                self.cfg.expt[param_name] = QickSweep1D(
-                    param_name, param_values.start, param_values.start + param_values.step * param_values.expts
-                )
-                self.params[param_name] = {"label": param_values.label, 
-                                           "param": param_values.param, 
-                                           "param_type": param_values.param_type}
-        # print("Sweep parameters: ", self.params)
-        print(self.cfg.expt)
-    
+        primary_variable = "wait_time"
+
+        self.sweep_params = {primary_variable: primary_param} 
+        # Combine sweep_param and sweep_other_param dictionaries
+        # Use the combine_sweep_params method from MMExperiment
+        self.sweep_param = self.combine_sweep_params(self.sweep_param, getattr(self.cfg.expt, 'sweep_other_param', {}))
+        self.initialize_sweep_variables()
             
 
         # Run the T2Program to acquire data

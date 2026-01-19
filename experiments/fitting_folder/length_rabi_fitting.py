@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 class LengthRabiFitting(GeneralFitting):
     def __init__(self, data, fit=True, fitparams=None, normalize=[False, 'g_data', 'e_data'], vlines=None, title='length_rabi',
-                    active_reset=False, readout_per_round=4, threshold=-4.0, fit_sin=False, config=None):
-        super().__init__(data, readout_per_round, threshold, config)
+                    active_reset=False, readout_per_round=4, threshold=-4.0, fit_sin=False, config=None, station=None):
+        super().__init__(data, readout_per_round, threshold, config, station)
         self.fit = fit
         self.fitparams = fitparams
         self.normalize = normalize
