@@ -2,42 +2,48 @@
 device:
     qubit:
         f_ge: 3492.43
-        f_ef: 3369.1
+        f_ef: 3369.277
         ramp_sigma: 0.005
         ramp_sigma_num: 3.0
         pulses:
             pi_ge:
-                gain: 0.496
-                sigma: 0.05
+                gain: 0.315
+                sigma: 0.03
                 length: 0.0
                 sigma_inc: 4
                 type: gauss
             hpi_ge:
-                gain: 0.23
-                sigma: 0.05
+                gain: 0.157
+                sigma: 0.03
                 length: 0.0
                 sigma_inc: 4
                 type: gauss
             pi_ef:
-                gain: 0.37
-                sigma: 0.02
+                gain: 0.114
+                sigma: 0.07
                 length: 0.0
                 sigma_inc: 4
                 type: gauss
             hpi_ef:
-                gain: 0.19
-                sigma: 0.02
+                gain: 0.047
+                sigma: 0.07
                 length: 0.0
                 sigma_inc: 4
                 type: gauss
+            slow_pi_ge:
+                gain: 0.22
+                sigma: 0
+                length: 3.0
+                sigma_inc: 4
+                type: const
         T1_ef: 0
     readout:
         trig_offset: 0.5
-        frequency: 7604.0074298858635
-        gain: 0.10324726851004089
-        phase: -79.8008584014104
-        length: 10.0
-        threshold: -1.5305867767372812
+        frequency: 7493.984 #7588.2
+        gain: 0.5 #0.08
+        phase: -70.4279874205774
+        length: 3
+        threshold: -0.9124381965829471
         threshold_list:
         - 0
         final_delay: 250
@@ -99,37 +105,37 @@ hw:
                 bw: 1.0
                 fc: 3600
                 att:
-                - 30
+                - 10
+                - 0
+            storage_in:
+                ch: 3
+                type: full
+                nyquist: 1
+                ftype: bandpass
+                bw: 1.0
+                fc: 3600
+                att:
+                - 0
                 - 0
             readout:
-                ch: 1
+                ch: 2
                 type: full
                 nyquist: 2
                 ftype: bandpass
                 bw: 1.0
                 fc: 7600
                 att:
-                - 15
+                - 20
                 - 0
             manipulate_in:
-                ch: 2
+                ch: 3
                 type: full
                 nyquist: 1
                 ftype: bandpass
-                bw: 2
-                fc: 3800
-                att:
-                - 20
-                - 0
-            storage_in:
-                ch: 6
-                type: full
-                nyquist: 2
-                ftype: bandpass
-                bw: 0.5
+                bw: 1.0
                 fc: 3600
                 att:
-                - 30
+                - 10
                 - 0
             flux_low:
                 ch: 1

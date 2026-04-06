@@ -22,13 +22,13 @@ Note that harmonics of the clock frequency (6144 MHz) will show up as "infinitel
 class ResonatorSpectroscopyProgram(MMProgram):
     def __init__(self, soccfg, final_delay, cfg):
         self.cfg = AttrDict(cfg)
-        print("Resonator Spectroscopy Program Config:")
+        # print("Resonator Spectroscopy Program Config:")
         
         super().__init__(soccfg, final_delay=final_delay, cfg=cfg)
 
     def _initialize(self, cfg):
         self.cfg = AttrDict(self.cfg)
-        print(self.cfg.expt)
+        # print(self.cfg.expt)
         self.readout_frequency = self.cfg.expt.frequency
         self.readout_length = self.cfg.expt.length 
         self.readout_gain = self.cfg.expt.gain
@@ -37,10 +37,11 @@ class ResonatorSpectroscopyProgram(MMProgram):
         self.initialize_readout()
         self.initialize_non_readout_channels()
         self.initialize_waveforms()
+        self.initialize_multiple_loops()
         
         # print('setting up readout loop')
         # Add frequency sweep loop
-        self.add_loop("freq_loop", self.cfg.expt.expts)
+        # self.add_loop("freq_loop", self.cfg.expt.expts)
         
         
     def _body(self, cfg):
@@ -124,13 +125,24 @@ class ResonatorSpectroscopyExperiment(MMExperiment):
         # print()
         
         # Set parameter to sweep
-        self.param = {"label": "readout_pulse", "param": "freq", "param_type": "pulse"}
+        # self.param = {"label": "readout_pulse", "param": "freq", "param_type": "pulse"}
         
-        # Choose acquisition method based on loop flag
-        # Standard acquisition with frequency sweep
-        self.cfg.expt.frequency = QickSweep1D(
-            "freq_loop", self.cfg.expt.start, self.cfg.expt.start+ self.cfg.expt.expts*self.cfg.expt.step
-        )
+        # # Choose acquisition method based on loop flag
+        # # Standard acquisition with frequency sweep
+        # self.cfg.expt.frequency = QickSweep1D(
+        #     "freq_loop", self.cfg.expt.start, self.cfg.expt.start+ self.cfg.expt.expts*self.cfg.expt.step
+        # )
+        primary_var = 'frequency'
+        primary_var_param_dict = {"label": "readout_pulse", "param": "freq", "param_type": "pulse", 
+                      "start": self.cfg.expt.start, "step": self.cfg.expt.step, "expts": self.cfg.expt.expts, 
+                      }
+
+        # note if variable inside dict then the Attr Dict apllies beforehand will make it immutable.so have to do this correction
+        self.sweep_param = {primary_var: primary_var_param_dict} 
+        self.sweep_param = AttrDict(self.combine_sweep_params(self.sweep_param, getattr(self.cfg.expt, 'sweep_other_param', {})))
+        # print(self.sweep_param)
+        self.initialize_sweep_variables()
+
         # print loop parameters
         # print("Frequency sweep parameters:")
         # print(f"Start: {self.cfg.expt.start} MHz")
@@ -140,7 +152,6 @@ class ResonatorSpectroscopyExperiment(MMExperiment):
         # get rid of qick asm object from cfg to make saving easier 
         self.cfg.expt.frequency = 0 
         
-
         return self.data
 
    

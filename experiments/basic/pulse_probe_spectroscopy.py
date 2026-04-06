@@ -17,9 +17,11 @@ class PulseProbeSpectroscopyProgram(MMProgram):
         self.initialize_readout()
         self.initialize_non_readout_channels()
         self.initialize_waveforms()
+       
         
-        self.add_loop("freq_loop", self.cfg.expt.expts)
+        # self.add_loop("freq_loop", self.cfg.expt.expts)
         self.initialize_multiple_loops()
+        
 
         # Create the main pulse based on cfg.expt parameters
         # Define the main pulse parameters as a single dictionary
@@ -35,25 +37,35 @@ class PulseProbeSpectroscopyProgram(MMProgram):
         # - "ramp_sigma": Ramp sigma for flat-top pulses
         # - "ramp_sigma_inc": Increment for ramp sigma
         pulse = self.cfg.expt.probe_pulse_param
+        print('making probe pulse with parameters: ', pulse)
 
         super().make_pulse(pulse, "probe_pulse")
+        # super().make_pulse(pulse, "readout_probe_pulse")
 
         
 
     def _body(self, cfg):
         # Apply prepulses if specified
-        print('enetered main body')
+        # print('enetered main body')
         # if self.adc_ch_type == 'dyn':
         #     self.send_readoutconfig(ch=self.adc_ch, name="readout", t=0)
         # cfg = AttrDict(self.cfg)
-        # if self.cfg.expt.get("prepulse", False):
-        #     for pname in self.prepulse_names:
-        #         self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)
-        #         self.delay_auto(t=0.01, tag="wait_prepulse" + pname)
+        if self.cfg.expt.get("prepulse", False):
+            for pname in self.prepulse_names:
+                print(pname)
+                self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)#self.cfg.expt.prepulse[pname].t)
+                # Run delay by default. Only skip delay when delay_flag is explicitly False.
+                delay_flag = self.cfg.expt.prepulse[pname].get("delay_flag", None)
+                if delay_flag is False:
+                    # explicit instruction to skip delay
+                    pass
+                else:
+                    self.delay_auto(t=0.01, tag="wait_prepulse" + pname)
+                    print('delayiong after prepulse', pname)
 
         # Apply the main pulse
         self.pulse(ch=self.cfg.expt.probe_pulse_param.chan, name="probe_pulse", t=0)
-        print('applied main pulse')
+        # print('applied main pulse')
         
         self.measure_wrapper()
 
@@ -81,15 +93,27 @@ class PulseProbeSpectroscopyExperiment(MMExperiment):
         freq_sweep = QickSweep1D(
             "freq_loop", self.cfg.expt.start, self.cfg.expt.start + self.cfg.expt.expts * self.cfg.expt.step
         )
+        primary_var = 'freq'
+        primary_var_param_dict = {"label": "probe_pulse", "param": "freq", "param_type": "pulse", 
+                      "start": self.cfg.expt.start, "step": self.cfg.expt.step, "expts": self.cfg.expt.expts, 
+                      "parent_dict": 'probe_pulse_param'}
 
         # note if variable inside dict then the Attr Dict apllies beforehand will make it immutable.so have to do this correction
-        probe_pulse_param = dict(self.cfg.expt.probe_pulse_param)
-        probe_pulse_param['freq'] = freq_sweep
-        self.cfg.expt.probe_pulse_param = probe_pulse_param
+        self.sweep_param = {primary_var: primary_var_param_dict} 
+        self.sweep_param = AttrDict(self.combine_sweep_params(self.sweep_param, getattr(self.cfg.expt, 'sweep_other_param', {})))
+        # print(self.sweep_param)
+        self.initialize_sweep_variables() # finished making qick objects 
+        if "readout_probe" in self.cfg.expt.prepulse: 
+            self.cfg.expt.prepulse.readout_probe.gain = self.cfg.expt.readout_probe_gain
+            print(self.cfg.expt.prepulse.readout_probe)
 
         super().acquire(PulseProbeSpectroscopyProgram, progress=progress)
         # self.cfg.expt.frequency = 0
         self.cfg.expt.probe_pulse_param.freq = 0
+    
+    
+        # if "readout_probe" in self.cfg.expt.prepulse: 
+        #     self.cfg.expt.prepulse.readout_probe.gain = None
         return self.data
 
     def analyze(self, data=None, fit=True, **kwargs):

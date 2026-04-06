@@ -32,10 +32,10 @@ class SingleShotProgram(MMProgram):
         if self.cfg.expt.get("prepulse", False):
             
             print('inside body of single shot program')
-            # print(self.cfg.expt.prepulse)
-            # for pname in self.cfg.expt.prepulse:
-            #     self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)
-            #     self.delay_auto(t=0.01, tag="wait_prepulse" + pname)
+            print(self.cfg.expt.prepulse)
+            for pname in self.cfg.expt.prepulse:
+                self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)
+                self.delay_auto(t=0.01, tag="wait_prepulse" + pname)
         
         if self.cfg.expt.pulse_e:
             print('pulsing e')
@@ -145,8 +145,9 @@ class SingleShotExperiment(MMExperiment):
         data = {}
 
         # Check if sweep_other_params is non-empty
-        if self.cfg.expt.get("sweep_other_param", {}):
-            self.initialize_sweep_variables(params = {})
+        if self.cfg.expt.get("sweep_param", {}):
+            self.sweep_param = self.cfg.expt.sweep_param
+            self.initialize_sweep_variables()
             # Acquire ground state data
             data["iqlist_g"] = self.acquire_single_shot_data(pulse_e=False, progress=progress)
 

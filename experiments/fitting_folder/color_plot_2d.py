@@ -84,7 +84,7 @@ class ColorPlot2D(GeneralFitting):
             # Add horizontal lines
             if hlines is not None:
                 for h in hlines:
-                    plt.axhline(h, color='blue', linestyle='--')
+                    plt.axhline(h, color='blue', linestyle='--', label=f'HLine: {h}')
 
             # Mark the maximum point if analysis was run
             if self.results and idx < len(self.results):

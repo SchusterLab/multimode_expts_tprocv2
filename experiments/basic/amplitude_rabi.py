@@ -67,11 +67,11 @@ class RabiProgram(MMProgram):
             for pname in self.prepulse_names:
                 self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)
                 print('Applied prepulse: ', pname)
-                self.delay_auto(t=0.0133, tag="wait_prepulse")
+                self.delay_auto(t=0.0133, tag="wait_prepulse_" + str(pname))
 
         # Apply the main qubit pulse (variable amplitude or length)
         for i in range(cfg.expt.n_pulses):
-            self.pulse(ch=self.qubit_ch, name="rabi_pulse", t=0)
+            self.pulse(ch=self.cfg.expt.chan, name="rabi_pulse", t=0)
             self.delay_auto(t=0.01)
 
         # If checking EF transition with ge pulse, apply second pi pulse
@@ -79,7 +79,11 @@ class RabiProgram(MMProgram):
         #     self.pulse(ch=self.qubit_ch, name="pi_ge", t=0)
         #     self.delay_auto(t=0.01, tag="wait ef 2")
             # pass
-
+        if self.cfg.expt.get('postpulse', False):
+            for pname in self.postpulse_names:
+                self.pulse(ch=self.cfg.expt.postpulse[pname].chan, name=pname, t=0)
+                print('Applied postpulse: ', pname)
+                self.delay_auto(t=0.0133, tag="wait_postpulse_" + str(pname))
 
         # Perform measurement
         self.measure_wrapper()
@@ -165,8 +169,7 @@ class RabiExperiment(MMExperiment):
         
 
         # 2. Set the parameter metadata
-        
-        
+                
         primary_param = {"label": "rabi_pulse", "param": primary_param_pulse, "param_type": "pulse", 
                       "start": self.cfg.expt.start, "step": self.cfg.expt.step, "expts": self.cfg.expt.expts}
         self.sweep_param = {par: primary_param} 

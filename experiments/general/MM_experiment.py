@@ -242,8 +242,8 @@ class MMExperiment(Experiment, MMBase):
         # print(self.data)
         # Clean up configuration after sweep
         # only call uf self.param or self.sweep_other_params exist
-        if hasattr(self, 'param') or hasattr(self.cfg.expt, 'sweep_other_params'):
-            self.clean_config_after_sweep()
+        
+        self.clean_config_after_sweep()
 
         return data
 
@@ -811,19 +811,34 @@ class MMExperiment(Experiment, MMBase):
             
     def initialize_sweep_variables(self, params = None):
         """Initialize sweep variables for the experiment."""
+        # print('entering initailoize sweep vars ')
         
         for param_name, param_values in self.sweep_param.items():
-            # print('param name is ' + str(param_name) + ', param values are ' + str(param_values))
-            # param_values = AttrDict(param_values)
-            self.cfg.expt[param_name] = QickSweep1D(
-                param_name, param_values.start, param_values.start + param_values.step * param_values.expts
-            )
-            # self.sweep_param[param_name] = {
-            #     "label": param_values.label,
-            #     "param": param_values.param,
-            #     "param_type": param_values.param_type,
-            # }
-            # print('Initialized sweep variable:', self.cfg.expt[param_name])
+            # print('param name: ', param_name)
+            # if there is a key parent , then it should be 
+            # self.cfg.expt[parent][param_name] = QickSweep1D(..)
+            if "parent_dict" in param_values:
+                # print('-----------------')
+                # print(param_values)
+                # print(self.cfg.expt)
+                parent_name = param_values['parent_dict']
+                parent_dict = dict(self.cfg.expt[parent_name]) # since attr dict makes dict objects immutable 
+                parent_dict[param_name] = QickSweep1D(
+                    param_name, param_values.start, param_values.start + param_values.step * param_values.expts
+                )
+                # print(parent_dict)
+                self.cfg.expt[parent_name] = parent_dict
+                # print(self.cfg.expt)
+                # print('-----------------')
+                # print(param_values)
+                # print(self.cfg.expt)
+            else:
+                # print()
+                self.cfg.expt[param_name] = QickSweep1D(
+                    param_name, param_values.start, param_values.start + param_values.step * param_values.expts
+                )
+           
+            
         self.cfg.expt.sweep_param = self.sweep_param
 
             
@@ -833,7 +848,22 @@ class MMExperiment(Experiment, MMBase):
         """
         if self.sweep_param:  # Replace sweep_other_param with sweep_param
             for param_name in self.sweep_param.keys():
-                self.cfg.expt[param_name] = None
+                param_values = self.sweep_param[param_name]
+                if "parent_dict" in param_values:
+                    # print('-----------------')
+                    # print(param_values)
+                    # print(self.cfg.expt)
+                    parent_name = param_values['parent_dict']
+                    parent_dict = dict(self.cfg.expt[parent_name]) # since attr dict makes dict objects immutable 
+                    parent_dict[param_name] = None
+                    # print(parent_dict)
+                    self.cfg.expt[parent_name] = parent_dict
+                    # print(self.cfg.expt)
+                    # print('-----------------')
+                    # print(param_values)
+                    # print(self.cfg.expt)
+                else:
+                    self.cfg.expt[param_name] = None
 
     def combine_sweep_params(self, primary_params, additional_params):
         """

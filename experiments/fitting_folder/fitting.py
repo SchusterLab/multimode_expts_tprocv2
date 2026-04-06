@@ -57,6 +57,14 @@ def expfunc(x, *p):
     return y0 + yscale*np.exp(-(x-x0)/decay)
 
 def fitexp(xdata, ydata, fitparams=None):
+    """
+    Fit data to expfunc.
+    fitparams: [y0, yscale, x0, decay]
+        y0: offset
+        yscale: amplitude
+        x0: x offset
+        decay: decay constant
+    """
     if fitparams is None: fitparams = [None]*4
     if fitparams[0] is None: fitparams[0] = ydata[-1]
     if fitparams[1] is None: fitparams[1] = ydata[0]-ydata[-1]
@@ -77,6 +85,14 @@ def expfunc_y0fixed(x, y0, *p):
     return y0 + yscale*np.exp(-(x-x0)/decay)
 
 def fitexp_y0fixed(xdata, ydata, fitparams=None):
+    """
+    Fit data to expfunc_y0fixed.
+    fitparams: [y0, yscale, x0, decay]
+        y0: offset (fixed)
+        yscale: amplitude
+        x0: x offset
+        decay: decay constant
+    """
     if fitparams is None: fitparams = [None]*4
     #if fitparams[0] is None: fitparams[0] = ydata[-1]
     if fitparams[1] is None: fitparams[0] = ydata[0]-ydata[-1]
@@ -101,6 +117,18 @@ def twofreq_decaysin(x, *p):
 
 
 def fittwofreq_decaysin(xdata, ydata, fitparams=None):
+    """
+    Fit data to twofreq_decaysin.
+    fitparams: [yscale0, freq0, phase_deg0, decay0, yscale1, freq1, phase_deg1, y0]
+        yscale0: amplitude of first freq
+        freq0: frequency 0
+        phase_deg0: phase of freq0 (deg)
+        decay0: decay constant
+        yscale1: amplitude of second freq
+        freq1: frequency 1
+        phase_deg1: phase of freq1 (deg)
+        y0: offset
+    """
     if fitparams is None:
         fitparams = [None] * 10
     else:
@@ -165,6 +193,13 @@ def expfunc1(x, *p):
     return y0 + yscale*np.exp(x/decay/-1)
 
 def fitexp1(xdata, ydata, fitparams=None):
+    """
+    Fit data to expfunc1.
+    fitparams: [y0, yscale, decay]
+        y0: offset
+        yscale: amplitude
+        decay: decay constant
+    """
     if fitparams is None: fitparams = [None]*3
     if fitparams[0] is None: fitparams[0] = ydata[-1]
     if fitparams[1] is None: fitparams[1] = ydata[0]-ydata[-1]
@@ -189,6 +224,14 @@ def lorfunc(x, *p):
     return y0 + yscale/(1+(x-x0)**2/xscale**2)
 
 def fitlor(xdata, ydata, fitparams=None):
+    """
+    Fit data to lorfunc.
+    fitparams: [y0, yscale, x0, xscale]
+        y0: offset
+        yscale: amplitude
+        x0: center
+        xscale: HWHM (half width at half max)
+    """
     if fitparams is None: fitparams = [None]*4
     if fitparams[0] is None: fitparams[0] = (ydata[0] + ydata[-1])/2
     if fitparams[1] is None: fitparams[1] = max(ydata) - min(ydata)
@@ -211,6 +254,14 @@ def sinfunc(x, *p):
     return yscale*np.sin(2*np.pi*freq*x + phase_deg*np.pi/180) + y0
 
 def fitsin(xdata, ydata, fitparams=None):
+    """
+    Fit data to sinfunc.
+    fitparams: [yscale, freq, phase_deg, y0]
+        yscale: amplitude
+        freq: frequency
+        phase_deg: phase (deg)
+        y0: offset
+    """
     if fitparams is None: fitparams = [None]*4
     fourier = np.fft.fft(ydata)
     fft_freqs = np.fft.fftfreq(len(ydata), d=xdata[1]-xdata[0])
@@ -255,6 +306,18 @@ def decaysin_dualrail(x, *p):
     return yscale* (1 + np.sin(2*np.pi*freq*x + phase_deg*np.pi/180) * np.exp(-(x-x0_phi)/decay_phi)) * np.exp(-(x-x0_kappa)/decay)  + y0
 
 def fitdecaysin_dualrail(xdata, ydata, fitparams=None):
+    """
+    Fit data to decaysin_dualrail.
+    fitparams: [yscale, freq, phase_deg, decay, decay_phi, y0, x0_kappa, x0_phi]
+        yscale: amplitude
+        freq: frequency
+        phase_deg: phase (deg)
+        decay: decay constant (kappa)
+        decay_phi: decay constant (phi)
+        y0: offset
+        x0_kappa: x offset for kappa
+        x0_phi: x offset for phi
+    """
     if fitparams is None: fitparams = [None]*8
     fourier = np.fft.fft(ydata)
     fft_freqs = np.fft.fftfreq(len(ydata), d=xdata[1]-xdata[0])
@@ -293,6 +356,16 @@ def fitdecaysin_dualrail(xdata, ydata, fitparams=None):
     return pOpt, pCov
 
 def fitdecaysin1(xdata, ydata, fitparams=None):
+    """
+    Fit data to decaysin1.
+    fitparams: [yscale, freq, phase_deg, decay, y0, x0]
+        yscale: amplitude
+        freq: frequency
+        phase_deg: phase (deg)
+        decay: decay constant
+        y0: offset
+        x0: x offset
+    """
     if fitparams is None: fitparams = [None]*6
     fourier = np.fft.fft(ydata)
     fft_freqs = np.fft.fftfreq(len(ydata), d=xdata[1]-xdata[0])
@@ -322,6 +395,16 @@ def fitdecaysin1(xdata, ydata, fitparams=None):
     return pOpt, pCov
 
 def fitdecaysin(xdata, ydata, fitparams=None):
+    """
+    Fit data to decaysin.
+    fitparams: [yscale, freq, phase_deg, decay, y0, x0]
+        yscale: amplitude
+        freq: frequency
+        phase_deg: phase (deg)
+        decay: decay constant
+        y0: offset
+        x0: x offset
+    """
     if fitparams is None: fitparams = [None]*6
     fourier = np.fft.fft(ydata)
     fft_freqs = np.fft.fftfreq(len(ydata), d=xdata[1]-xdata[0])
@@ -365,6 +448,14 @@ def gaussianfunc(x, *p):
     return y0 + yscale * np.exp(-((x - x0) / sigma) ** 2)
 
 def fitgaussian(xdata, ydata, fitparams=None):
+    """
+    Fit data to gaussianfunc.
+    fitparams: [y0, yscale, x0, sigma]
+        y0: offset
+        yscale: amplitude
+        x0: center
+        sigma: width (std dev)
+    """
     if fitparams is None: fitparams = [None]*4
     if fitparams[0] is None: fitparams[0]=np.min(ydata)
     if fitparams[1] is None: fitparams[1]=np.max(ydata)-np.min(ydata)
@@ -411,6 +502,17 @@ def hangerphasefunc(x, *p):
     return np.angle(hangerfunc(x, *p))
 
 def fithanger(xdata, ydata, fitparams=None):
+    """
+    Fit data to hangerS21func_sloped.
+    fitparams: [f0, Qi, Qe, phi, scale, a0, slope]
+        f0: resonance frequency
+        Qi: internal Q
+        Qe: external Q
+        phi: phase
+        scale: amplitude scale
+        a0: offset
+        slope: linear slope
+    """
     if fitparams is None: fitparams = [None]*7
     if fitparams[0] is None: fitparams[0]=np.average(xdata)
     if fitparams[1] is None: fitparams[1]=5000
@@ -460,6 +562,13 @@ def rb_gate_fidelity(p_rb, p_irb, d):
     return 1 - (d-1)*(1-p_irb/p_rb) / d
 
 def fitrb(xdata, ydata, fitparams=None):
+    """
+    Fit data to rb_func.
+    fitparams: [p, a, b]
+        p: depolarizing parameter
+        a: amplitude
+        b: offset
+    """
     if fitparams is None: fitparams = [None]*3
     if fitparams[0] is None: fitparams[0]=0.9
     if fitparams[1] is None: fitparams[1]=np.max(ydata) - np.min(ydata)

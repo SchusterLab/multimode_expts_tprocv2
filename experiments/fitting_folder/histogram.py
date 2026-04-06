@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.special import erf
 from copy import deepcopy
+from .color_plot_2d import *
 
 # Utility Functions
 
@@ -82,13 +83,16 @@ def distfn(v, vg, ve, sigma, tm):
     )
 
 class Histogram(GeneralFitting):
-    def __init__(self, data, span=None, verbose=True, active_reset=False, readout_per_round=None, threshold=None, config=None, station=None):
+    def __init__(self, data, span=None, verbose=True, active_reset=False, readout_per_round=None, 
+                 threshold=None, config=None, station=None, 
+                 sweep_params={}):
         super().__init__(data, readout_per_round, threshold, config, station)
         self.span = span
         self.verbose = verbose
         # self.active_reset = self.cfg.expt.active_reset 
         self.results = {}
-
+        self.sweep_params = sweep_params
+        
     def analyze(self, data=None):
         """
         Analyze IQ data, rotate, and calculate fidelities.
@@ -205,8 +209,7 @@ class Histogram(GeneralFitting):
         qlist_e = iq_list_e[..., 1]
         
         # Reshape data according to sweep dimensions
-        shape_with_shots = tuple(sweep_expts) + (iq_list_g.shape[-2],)
-
+        shape_with_shots = tuple(sweep_expts) + (iq_list_g.shape[-2],) 
         Ig = ilist_g.reshape(shape_with_shots)
         Qg = qlist_g.reshape(shape_with_shots)
         Ie = ilist_e.reshape(shape_with_shots)
@@ -226,10 +229,10 @@ class Histogram(GeneralFitting):
             'Qe': Qe,
             'sweep_keys_and_xpts': sweep_keys_and_xpts
         }
-        
+        # return 
         return results
     
-    def analyze_swept_histogram_data(self, parsed_data):
+    def analyze_swept_histogram_data(self):
         """
         Analyze each quartet of Ig, Qg, Ie, and Qe from parsed swept histogram data.
 
@@ -239,6 +242,7 @@ class Histogram(GeneralFitting):
         Returns:
             Dictionary with fidelity results added for each sweep index.
         """
+        parsed_data = self.parse_swept_histogram_data(self.sweep_params)
         # Extract parsed data
         Ig = parsed_data['Ig']
         Qg = parsed_data['Qg']
@@ -274,4 +278,30 @@ class Histogram(GeneralFitting):
         # Add fidelity results to the parsed data dictionary
         parsed_data['fidelity'] = fidelity_results
 
+        self.results =  parsed_data
         return parsed_data
+    
+    def display_swept_histogram_data(self, parsed_hist = None, y_key='readout_frequency', x_key='readout_gain', z_key='fidelity'):
+        """
+        Create and display a ColorPlot2D from parsed_hist sweep data.
+        Returns the plot_object.
+        """
+        if parsed_hist is None:
+            parsed_hist = self.results
+        ylist = parsed_hist['sweep_keys_and_xpts'][y_key]
+        xlist = parsed_hist['sweep_keys_and_xpts'][x_key]
+        z = np.array(parsed_hist[z_key])
+
+        # reduce higher dims (e.g. IQ arrays) to 2D by averaging if needed
+        if z.ndim > 2:
+            z = z.mean(axis=-1)
+
+        # crop if data has extra row/col (for shading='flat' compatibility)
+        if z.shape[0] == len(ylist) + 1 or z.shape[1] == len(xlist) + 1:
+            z = z[:-1, :-1]
+
+        plot_object = ColorPlot2D(xlist=xlist, ylist=ylist, zlists=[z],
+                                    ylabel=y_key, xlabel=x_key)
+        plot_object.analyze()
+        plot_object.display()
+        return plot_object
