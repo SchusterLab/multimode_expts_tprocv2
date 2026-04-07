@@ -811,22 +811,24 @@ class MMExperiment(Experiment, MMBase):
             
     def initialize_sweep_variables(self, params = None):
         """Initialize sweep variables for the experiment."""
-        # print('entering initailoize sweep vars ')
+        print('entering initialize sweep vars ')
         
         for param_name, param_values in self.sweep_param.items():
-            # print('param name: ', param_name)
+            print('param name: ', param_name)
             # if there is a key parent , then it should be 
             # self.cfg.expt[parent][param_name] = QickSweep1D(..)
+            print('param values: ', param_values)
             if "parent_dict" in param_values:
                 # print('-----------------')
                 # print(param_values)
                 # print(self.cfg.expt)
                 parent_name = param_values['parent_dict']
+                # print(parent_dict)
                 parent_dict = dict(self.cfg.expt[parent_name]) # since attr dict makes dict objects immutable 
                 parent_dict[param_name] = QickSweep1D(
                     param_name, param_values.start, param_values.start + param_values.step * param_values.expts
                 )
-                # print(parent_dict)
+                
                 self.cfg.expt[parent_name] = parent_dict
                 # print(self.cfg.expt)
                 # print('-----------------')

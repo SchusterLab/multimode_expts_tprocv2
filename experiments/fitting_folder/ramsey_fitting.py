@@ -80,12 +80,13 @@ class RamseyFitting(GeneralFitting):
             ("avgi", "fit_avgi", axes[0], "I", "blue", "cyan"),
             ("avgq", "fit_avgq", axes[1], "Q", "red", "orange")
         ]
-
+        
         for avg_key, fit_key, ax, label, color, fit_color in plot_params:
+            # Label the T2 value as well ; 4th parameter is the decay parameter which is related to T2
             ax.plot(data["xpts"], data[avg_key], 'o-', label=label, color=color, alpha=0.6)
             if fit and fit_key in data:
                 ax.plot(data["xpts"], decaysin(data["xpts"], *data[fit_key]), 
-                        label=f"Fit {label} (Freq: {data[fit_key][1]:.2f})", color=fit_color, alpha=0.6)
+                        label=f"Fit {label} (Freq: {data[fit_key][1]:.2f}) and T2: {(data[fit_key][3]):.2f}", color=fit_color, alpha=0.6)
             ax.set(ylabel=f"Amplitude ({label})")
             if ylim:
                 ax.set_ylim(ylim)

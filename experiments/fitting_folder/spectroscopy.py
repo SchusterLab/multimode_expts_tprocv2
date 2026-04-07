@@ -99,7 +99,8 @@ class SpectroscopyFitting(GeneralFitting):
         
         return modified_data_list
 
-    def display(self, title='Spectroscopy Fitting', vlines=None, hlines=None, fit=True, data_list=None):
+    def display(self, title='Spectroscopy Fitting', vlines=None, hlines=None, fit=True, data_list=None, data_labels=None, 
+                figsize=(8, 8)):
         """
         Display spectroscopy data with optional fitting.
         
@@ -115,6 +116,8 @@ class SpectroscopyFitting(GeneralFitting):
             Whether to overlay fitted curves
         data_list : list of dict, optional
             List of data dictionaries to plot on the same axes. If None, uses self.data only.
+        data_labels : list of str, optional
+            List of labels for each dataset in data_list. If None, default labels will be used.
         """
         print('new display function for spectroscopy')
         
@@ -127,7 +130,7 @@ class SpectroscopyFitting(GeneralFitting):
         ylabels = ["Amplitude [ADC]", "I [ADC]", "Q [ADC]"]
         colors = plt.cm.tab10(range(len(data_list)))
         
-        fig, axes = plt.subplots(3, 1, figsize=(5,5), sharex=True)
+        fig, axes = plt.subplots(3, 1, figsize=figsize, sharex=True)
         axes[0].set_title(title)
 
         for i, (ax, key) in enumerate(zip(axes, keys)):
@@ -135,6 +138,8 @@ class SpectroscopyFitting(GeneralFitting):
             for idx, (data, xpts, color) in enumerate(zip(data_list, xpts_list, colors)):
                 y_data = data[key][1:-1]
                 label_data = f'Data {idx+1}' if len(data_list) > 1 else 'Data'
+                if data_labels:
+                    label_data = data_labels[idx]
                 ax.plot(xpts, y_data, 'o-', label=label_data, alpha=0.7, color=color)
 
                 # Handle Fitting

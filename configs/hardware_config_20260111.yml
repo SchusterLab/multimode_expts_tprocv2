@@ -1,19 +1,19 @@
 ---
 device:
     qubit:
-        f_ge: 3492.43
+        f_ge: 3704.9
         f_ef: 3369.277
         ramp_sigma: 0.005
         ramp_sigma_num: 3.0
         pulses:
             pi_ge:
-                gain: 0.315
+                gain: 0.256
                 sigma: 0.03
                 length: 0.0
                 sigma_inc: 4
                 type: gauss
             hpi_ge:
-                gain: 0.157
+                gain: 0.129
                 sigma: 0.03
                 length: 0.0
                 sigma_inc: 4
@@ -39,8 +39,8 @@ device:
         T1_ef: 0
     readout:
         trig_offset: 0.5
-        frequency: 7493.984 #7588.2
-        gain: 0.5 #0.08
+        frequency: 7600.5
+        gain: 0.2
         phase: -70.4279874205774
         length: 3
         threshold: -0.9124381965829471
@@ -108,7 +108,7 @@ hw:
                 - 10
                 - 0
             storage_in:
-                ch: 3
+                ch: 2
                 type: full
                 nyquist: 1
                 ftype: bandpass
@@ -118,17 +118,17 @@ hw:
                 - 0
                 - 0
             readout:
-                ch: 2
+                ch: 1
                 type: full
                 nyquist: 2
                 ftype: bandpass
                 bw: 1.0
                 fc: 7600
                 att:
-                - 20
+                - 30
                 - 0
             manipulate_in:
-                ch: 3
+                ch: 2
                 type: full
                 nyquist: 1
                 ftype: bandpass

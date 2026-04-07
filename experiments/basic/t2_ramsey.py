@@ -221,12 +221,14 @@ class RamseyExperiment(MMExperiment):
         # Create a 1D sweep for the wait time from start to start+span
         primary_variable = "wait_time"
 
-        self.sweep_params = {primary_variable: primary_param} 
+        self.sweep_param = {primary_variable: primary_param} 
         # Combine sweep_param and sweep_other_param dictionaries
         # Use the combine_sweep_params method from MMExperiment
-        self.sweep_param = self.combine_sweep_params(self.sweep_param, getattr(self.cfg.expt, 'sweep_other_param', {}))
-        self.initialize_sweep_variables()
-            
+        # self.sweep_param = self.combine_sweep_params(self.sweep_param, getattr(self.cfg.expt, 'sweep_other_param', {}))
+        # self.initialize_sweep_variables()
+        self.sweep_param = AttrDict(self.combine_sweep_params(self.sweep_param, getattr(self.cfg.expt, 'sweep_other_param', {})))
+        print(self.sweep_param)
+        self.initialize_sweep_variables()    
 
         # Run the T2Program to acquire data
         # print(RamseyProgram)
