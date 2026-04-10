@@ -1,0 +1,180 @@
+commit 79bbd4354d6e14208edbdbd4736f85ecb3526e5d
+Author: gerbert <gzhwang@stanford.edu>
+Date:   Mon Apr 6 14:53:11 2026 -0700
+
+    changes from last cooldown (feb)
+
+ .vscode/settings.json                              |     2 +
+ __pycache__/vna_measurement.cpython-313.pyc        |   Bin 0 -> 40953 bytes
+ configs/hardware_config_20260111.yml               |    64 +-
+ .../__pycache__/amplitude_rabi.cpython-313.pyc     |   Bin 15255 -> 8565 bytes
+ .../pulse_probe_spectroscopy.cpython-313.pyc       |   Bin 5813 -> 7441 bytes
+ .../resonator_spectroscopy.cpython-313.pyc         |   Bin 10880 -> 10876 bytes
+ .../basic/__pycache__/single_shot.cpython-313.pyc  |   Bin 8604 -> 9195 bytes
+ .../basic/__pycache__/t2_ramsey.cpython-313.pyc    |   Bin 9380 -> 8775 bytes
+ experiments/basic/amplitude_rabi.py                |    13 +-
+ experiments/basic/pulse_probe_spectroscopy.py      |    44 +-
+ experiments/basic/resonator_spectroscopy.py        |    31 +-
+ experiments/basic/single_shot.py                   |    13 +-
+ .../amplitude_rabi_fitting.cpython-313.pyc         |   Bin 5380 -> 6757 bytes
+ .../__pycache__/color_plot_2d.cpython-313.pyc      |   Bin 5984 -> 6245 bytes
+ .../__pycache__/fitting.cpython-313.pyc            |   Bin 30841 -> 33156 bytes
+ .../__pycache__/general_fitting.cpython-313.pyc    |   Bin 11204 -> 11204 bytes
+ .../__pycache__/histogram.cpython-313.pyc          |   Bin 13701 -> 15012 bytes
+ .../__pycache__/spectroscopy.cpython-313.pyc       |   Bin 5591 -> 21473 bytes
+ .../fitting_folder/amplitude_rabi_fitting.py       |    49 +-
+ experiments/fitting_folder/color_plot_2d.py        |     2 +-
+ experiments/fitting_folder/fitting.py              |   109 +
+ experiments/fitting_folder/histogram.py            |    44 +-
+ experiments/fitting_folder/spectroscopy.py         |   334 +-
+ experiments/general/MM_experiment.py               |    58 +-
+ experiments/general/MM_program.py                  |  1396 +-
+ .../__pycache__/MM_experiment.cpython-313.pyc      |   Bin 29912 -> 29626 bytes
+ .../general/__pycache__/MM_program.cpython-313.pyc |   Bin 38963 -> 13792 bytes
+ ...0346.833093_res_spec_vs_current_7599.607MHz.png |   Bin 0 -> 88113 bytes
+ ...1331.983818_res_spec_vs_current_7599.607MHz.png |   Bin 0 -> 231177 bytes
+ ...4054.032884_res_spec_vs_current_6026.141MHz.png |   Bin 0 -> 223804 bytes
+ ...0146.532155_res_spec_vs_current_6322.951MHz.png |   Bin 0 -> 253055 bytes
+ ...2238.706817_res_spec_vs_current_7494.083MHz.png |   Bin 0 -> 160860 bytes
+ ...4331.546971_res_spec_vs_current_7525.226MHz.png |   Bin 0 -> 174635 bytes
+ ...0425.516137_res_spec_vs_current_7588.205MHz.png |   Bin 0 -> 174027 bytes
+ ...2518.463152_res_spec_vs_current_7387.698MHz.png |   Bin 0 -> 256055 bytes
+ ...4626.425937_res_spec_vs_current_7599.608MHz.png |   Bin 0 -> 259402 bytes
+ ...224219.683282_res_spec_vs_current_7493.3MHz.png |   Bin 0 -> 60479 bytes
+ ...224232.633886_res_spec_vs_current_7524.9MHz.png |   Bin 0 -> 65721 bytes
+ ...4852.764036_res_spec_vs_current_7493.863MHz.png |   Bin 0 -> 211644 bytes
+ ...2347.373758_res_spec_vs_current_7525.123MHz.png |   Bin 0 -> 216166 bytes
+ ...4100.935678_res_spec_vs_current_7588.084MHz.png |   Bin 0 -> 306169 bytes
+ ...2325.952249_res_spec_vs_current_7493.863MHz.png |   Bin 0 -> 121683 bytes
+ ...4949.674580_res_spec_vs_current_7493.863MHz.png |   Bin 0 -> 212702 bytes
+ ...021314.115158_res_spec_vs_current_3820.9MHz.png |   Bin 0 -> 269503 bytes
+ ...035505.141862_res_spec_vs_current_4421.7MHz.png |   Bin 0 -> 263304 bytes
+ ...38.229550_res_spec_vs_current_7387.69491MHz.png |   Bin 0 -> 272894 bytes
+ ...2417.123087_res_spec_vs_current_7599.607MHz.png |   Bin 0 -> 259895 bytes
+ ...1941.462141_res_spec_vs_current_7599.607MHz.png |   Bin 0 -> 208746 bytes
+ ...3236.290256_res_spec_vs_current_7599.607MHz.png |   Bin 0 -> 65163 bytes
+ ...3918.231431_res_spec_vs_current_7599.607MHz.png |   Bin 0 -> 416781 bytes
+ ...N_res_6026114_dbm_500bw_2026-02-24_11-37-56.png |   Bin 0 -> 90612 bytes
+ ...res_6026141_30dbm_500bw_2026-02-24_11-12-44.png |   Bin 0 -> 55378 bytes
+ ...N_res_6322857_dbm_500bw_2026-02-24_11-41-16.png |   Bin 0 -> 94698 bytes
+ ...res_6322951_30dbm_500bw_2026-02-24_11-16-04.png |   Bin 0 -> 53885 bytes
+ ...N_res_7387680_dbm_500bw_2026-02-24_11-44-37.png |   Bin 0 -> 92619 bytes
+ ...res_7387698_30dbm_500bw_2026-02-24_11-19-49.png |   Bin 0 -> 57433 bytes
+ ...N_res_7493326_dbm_500bw_2026-02-24_11-30-27.png |   Bin 0 -> 51729 bytes
+ ...res_7494083_30dbm_500bw_2026-02-24_11-05-57.png |   Bin 0 -> 88033 bytes
+ ...N_res_7524950_dbm_500bw_2026-02-24_11-33-49.png |   Bin 0 -> 50520 bytes
+ ...res_7525226_30dbm_500bw_2026-02-24_11-09-21.png |   Bin 0 -> 71124 bytes
+ ...N_res_7588199_dbm_500bw_2026-02-24_11-51-34.png |   Bin 0 -> 91311 bytes
+ ...res_7588205_30dbm_500bw_2026-02-24_11-27-06.png |   Bin 0 -> 101825 bytes
+ ...N_res_7599480_dbm_500bw_2026-02-24_11-48-13.png |   Bin 0 -> 103684 bytes
+ ...res_7599608_30dbm_500bw_2026-02-24_11-23-11.png |   Bin 0 -> 53155 bytes
+ .../measurement_notebooksDCM REFLECTION_try1.png   |   Bin 0 -> 71419 bytes
+ ...es_6026114_30dbm_1000bw_2026-02-23_19-15-39.png |   Bin 0 -> 73067 bytes
+ ...res_6026114_30dbm_500bw_2026-02-23_20-41-11.png |   Bin 0 -> 62930 bytes
+ ..._res_6026114_dbm_1000bw_2026-02-23_19-07-34.png |   Bin 0 -> 76815 bytes
+ ..._res_6026114_dbm_1000bw_2026-02-23_19-10-50.png |   Bin 0 -> 88756 bytes
+ ..._res_6026114_dbm_1000bw_2026-02-23_19-18-34.png |   Bin 0 -> 88062 bytes
+ ...M_res_6026114_dbm_500bw_2026-02-23_20-17-50.png |   Bin 0 -> 84567 bytes
+ ...M_res_6026114_dbm_500bw_2026-02-24_02-09-04.png |   Bin 0 -> 78833 bytes
+ ...res_6026141_30dbm_500bw_2026-02-24_00-29-05.png |   Bin 0 -> 92503 bytes
+ ...res_6026141_30dbm_500bw_2026-02-24_01-45-04.png |   Bin 0 -> 102028 bytes
+ ...es_6027000_30dbm_1000bw_2026-02-23_18-42-55.png |   Bin 0 -> 73787 bytes
+ ...res_6027000_30dbm_500bw_2026-02-23_21-38-16.png |   Bin 0 -> 67766 bytes
+ ...es_6322857_30dbm_1000bw_2026-02-23_19-16-06.png |   Bin 0 -> 67767 bytes
+ ...res_6322857_30dbm_500bw_2026-02-23_20-44-43.png |   Bin 0 -> 75695 bytes
+ ..._res_6322857_dbm_1000bw_2026-02-23_19-07-59.png |   Bin 0 -> 72818 bytes
+ ..._res_6322857_dbm_1000bw_2026-02-23_19-11-09.png |   Bin 0 -> 80092 bytes
+ ..._res_6322857_dbm_1000bw_2026-02-23_19-20-19.png |   Bin 0 -> 77446 bytes
+ ...M_res_6322857_dbm_500bw_2026-02-23_20-21-10.png |   Bin 0 -> 74356 bytes
+ ...M_res_6322857_dbm_500bw_2026-02-24_02-12-24.png |   Bin 0 -> 85890 bytes
+ ...es_6322900_30dbm_1000bw_2026-02-23_18-43-20.png |   Bin 0 -> 66600 bytes
+ ...res_6322900_30dbm_500bw_2026-02-23_21-41-39.png |   Bin 0 -> 91495 bytes
+ ...res_6322951_30dbm_500bw_2026-02-24_00-32-26.png |   Bin 0 -> 100076 bytes
+ ...res_6322951_30dbm_500bw_2026-02-24_01-48-25.png |   Bin 0 -> 107649 bytes
+ ...es_7387680_30dbm_1000bw_2026-02-23_19-17-46.png |   Bin 0 -> 87255 bytes
+ ...res_7387680_30dbm_500bw_2026-02-23_20-59-30.png |   Bin 0 -> 77233 bytes
+ ..._res_7387680_dbm_1000bw_2026-02-23_19-12-29.png |   Bin 0 -> 43700 bytes
+ ..._res_7387680_dbm_1000bw_2026-02-23_19-27-23.png |   Bin 0 -> 73807 bytes
+ ...M_res_7387680_dbm_500bw_2026-02-23_20-34-30.png |   Bin 0 -> 74778 bytes
+ ...M_res_7387680_dbm_500bw_2026-02-24_02-15-44.png |   Bin 0 -> 73769 bytes
+ ...res_7387698_30dbm_500bw_2026-02-24_00-35-48.png |   Bin 0 -> 67323 bytes
+ ...res_7387698_30dbm_500bw_2026-02-24_01-51-46.png |   Bin 0 -> 57679 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-34-22.png |   Bin 0 -> 61459 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-40-15.png |   Bin 0 -> 75019 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-45-16.png |   Bin 0 -> 81681 bytes
+ ...res_7387700_30dbm_500bw_2026-02-23_21-55-03.png |   Bin 0 -> 67433 bytes
+ ...es_7493300_30dbm_1000bw_2026-02-23_18-43-42.png |   Bin 0 -> 83697 bytes
+ ...es_7493326_30dbm_1000bw_2026-02-23_19-16-38.png |   Bin 0 -> 71157 bytes
+ ...res_7493326_30dbm_500bw_2026-02-23_20-48-47.png |   Bin 0 -> 70117 bytes
+ ..._res_7493326_dbm_1000bw_2026-02-23_19-08-25.png |   Bin 0 -> 75523 bytes
+ ..._res_7493326_dbm_1000bw_2026-02-23_19-11-29.png |   Bin 0 -> 84657 bytes
+ ..._res_7493326_dbm_1000bw_2026-02-23_19-22-06.png |   Bin 0 -> 80698 bytes
+ ...M_res_7493326_dbm_500bw_2026-02-23_20-24-31.png |   Bin 0 -> 80981 bytes
+ ...M_res_7493326_dbm_500bw_2026-02-24_02-02-24.png |   Bin 0 -> 80495 bytes
+ ...res_7494083_30dbm_500bw_2026-02-24_00-18-23.png |   Bin 0 -> 74620 bytes
+ ...res_7494083_30dbm_500bw_2026-02-24_01-38-23.png |   Bin 0 -> 83446 bytes
+ ...res_7494120_30dbm_500bw_2026-02-23_21-45-02.png |   Bin 0 -> 85369 bytes
+ ...res_7494300_30dbm_1000bw2026-02-23_18-02-46.png |   Bin 0 -> 88125 bytes
+ ...es_7494300_30dbm_1000bw_2026-02-23_18-05-39.png |   Bin 0 -> 89269 bytes
+ ...es_7524900_30dbm_1000bw_2026-02-23_18-44-04.png |   Bin 0 -> 91150 bytes
+ ...es_7524950_30dbm_1000bw_2026-02-23_19-16-59.png |   Bin 0 -> 67170 bytes
+ ...res_7524950_30dbm_500bw_2026-02-23_20-52-20.png |   Bin 0 -> 75785 bytes
+ ..._res_7524950_dbm_1000bw_2026-02-23_19-08-54.png |   Bin 0 -> 73333 bytes
+ ..._res_7524950_dbm_1000bw_2026-02-23_19-11-49.png |   Bin 0 -> 79967 bytes
+ ..._res_7524950_dbm_1000bw_2026-02-23_19-23-52.png |   Bin 0 -> 77298 bytes
+ ...M_res_7524950_dbm_500bw_2026-02-23_20-27-52.png |   Bin 0 -> 79214 bytes
+ ...M_res_7524950_dbm_500bw_2026-02-24_02-05-44.png |   Bin 0 -> 81900 bytes
+ ...res_7525226_30dbm_500bw_2026-02-24_00-21-56.png |   Bin 0 -> 75411 bytes
+ ...res_7525226_30dbm_500bw_2026-02-24_01-41-44.png |   Bin 0 -> 86100 bytes
+ ...res_7525250_30dbm_500bw_2026-02-23_21-48-22.png |   Bin 0 -> 85892 bytes
+ ...es_7588199_30dbm_1000bw_2026-02-23_19-17-21.png |   Bin 0 -> 78957 bytes
+ ...res_7588199_30dbm_500bw_2026-02-23_20-55-56.png |   Bin 0 -> 70649 bytes
+ ..._res_7588199_dbm_1000bw_2026-02-23_19-09-41.png |   Bin 0 -> 77098 bytes
+ ..._res_7588199_dbm_1000bw_2026-02-23_19-12-09.png |   Bin 0 -> 84979 bytes
+ ..._res_7588199_dbm_1000bw_2026-02-23_19-25-38.png |   Bin 0 -> 83085 bytes
+ ...M_res_7588199_dbm_500bw_2026-02-23_20-31-11.png |   Bin 0 -> 82215 bytes
+ ...M_res_7588199_dbm_500bw_2026-02-24_02-23-01.png |   Bin 0 -> 81939 bytes
+ ...es_7588200_30dbm_1000bw_2026-02-23_18-44-24.png |   Bin 0 -> 97954 bytes
+ ...res_7588200_30dbm_500bw_2026-02-23_21-51-43.png |   Bin 0 -> 90167 bytes
+ ...res_7588205_30dbm_500bw_2026-02-24_00-25-35.png |   Bin 0 -> 75155 bytes
+ ...res_7588205_30dbm_500bw_2026-02-24_01-59-00.png |   Bin 0 -> 86923 bytes
+ ..._res_7599480_dbm_1000bw_2026-02-23_19-29-09.png |   Bin 0 -> 74463 bytes
+ ...M_res_7599480_dbm_500bw_2026-02-23_20-37-50.png |   Bin 0 -> 75974 bytes
+ ...M_res_7599480_dbm_500bw_2026-02-24_02-19-40.png |   Bin 0 -> 71426 bytes
+ ...es_7599505_30dbm_1000bw_2026-02-23_19-18-09.png |   Bin 0 -> 76088 bytes
+ ...res_7599505_30dbm_500bw_2026-02-23_21-04-12.png |   Bin 0 -> 89638 bytes
+ ..._res_7599505_dbm_1000bw_2026-02-23_19-13-46.png |   Bin 0 -> 68666 bytes
+ ...es_7599605_30dbm_1000bw_2026-02-23_18-40-40.png |   Bin 0 -> 85519 bytes
+ ...es_7599605_30dbm_1000bw_2026-02-23_18-45-38.png |   Bin 0 -> 57217 bytes
+ ...res_7599607_30dbm_500bw_2026-02-23_21-58-24.png |   Bin 0 -> 43474 bytes
+ ...res_7599608_30dbm_500bw_2026-02-24_00-39-10.png |   Bin 0 -> 42641 bytes
+ ...res_7599608_30dbm_500bw_2026-02-24_01-55-21.png |   Bin 0 -> 54249 bytes
+ ...es_7599630_30dbm_1000bw_2026-02-23_18-34-43.png |   Bin 0 -> 59445 bytes
+ ...es_7914200_30dbm_1000bw_2026-02-23_18-44-44.png |   Bin 0 -> 72068 bytes
+ .../q_fits/measurement_notebooksDCM_try1.png       |   Bin 0 -> 83515 bytes
+ .../q_fits/measurement_notebooksfit_params.csv     |     3 +
+ ...es_6027000_30dbm_1000bw_2026-02-23_18-12-29.png |   Bin 0 -> 64413 bytes
+ ...es_6322900_30dbm_1000bw_2026-02-23_18-13-06.png |   Bin 0 -> 71739 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-14-01.png |   Bin 0 -> 60398 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-21-16.png |   Bin 0 -> 58210 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-22-37.png |   Bin 0 -> 63594 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-23-49.png |   Bin 0 -> 79397 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-27-55.png |   Bin 0 -> 58348 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-30-30.png |   Bin 0 -> 59329 bytes
+ ...es_7387700_30dbm_1000bw_2026-02-23_18-38-07.png |   Bin 0 -> 72529 bytes
+ ...es_7493300_30dbm_1000bw_2026-02-23_18-14-54.png |   Bin 0 -> 86394 bytes
+ ...es_7494300_30dbm_1000bw_2026-02-23_18-09-20.png |   Bin 0 -> 88846 bytes
+ ...es_7524900_30dbm_1000bw_2026-02-23_18-15-14.png |   Bin 0 -> 95109 bytes
+ ...es_7588200_30dbm_1000bw_2026-02-23_18-15-33.png |   Bin 0 -> 92150 bytes
+ ...es_7599500_30dbm_1000bw_2026-02-23_18-15-53.png |   Bin 0 -> 56670 bytes
+ ...es_7599500_30dbm_1000bw_2026-02-23_18-22-01.png |   Bin 0 -> 64755 bytes
+ ...es_7599500_30dbm_1000bw_2026-02-23_18-22-59.png |   Bin 0 -> 59537 bytes
+ ...es_7599500_30dbm_1000bw_2026-02-23_18-24-12.png |   Bin 0 -> 92128 bytes
+ ...es_7599500_30dbm_1000bw_2026-02-23_18-28-31.png |   Bin 0 -> 42924 bytes
+ ...es_7599500_30dbm_1000bw_2026-02-23_18-30-51.png |   Bin 0 -> 60902 bytes
+ ...es_7599605_30dbm_1000bw_2026-02-23_18-38-33.png |   Bin 0 -> 62429 bytes
+ ...es_7914200_30dbm_1000bw_2026-02-23_18-16-15.png |   Bin 0 -> 70275 bytes
+ measurement_notebooks/q_fits/q_fitsfit_params.csv  |     3 +
+ .../single_qubit_autocalibrate.ipynb               | 83686 ++++++++++++++++++-
+ start_nameserver.ipynb                             |     6 +-
+ 173 files changed, 82789 insertions(+), 3068 deletions(-)

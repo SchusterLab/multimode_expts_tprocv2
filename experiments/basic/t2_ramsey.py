@@ -102,6 +102,13 @@ class RamseyProgram(MMProgram):
         # if hasattr(cfg.expt, "checkEF") and cfg.expt.checkEF:
         #     self.pulse(ch=self.qubit_ch, name="pi_qubit_ge", t=0)
         #     self.delay_auto(t=0.01, tag="wait ef 2")  # Small buffer delay
+        
+        # postpulse
+        if self.cfg.expt.get('postpulse', False):
+            for pname in self.cfg.expt.postpulse:
+                self.pulse(ch=self.cfg.expt.postpulse[pname].chan, name=pname, t=0)
+                print('Applied postpulse: ', pname)
+                self.delay_auto(t=0.01, tag="wait postpulse" + pname)
 
         
 

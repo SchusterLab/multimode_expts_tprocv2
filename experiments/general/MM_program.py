@@ -158,7 +158,7 @@ class MMProgram(AveragerProgramV2, MMBase):
             ch=self.adc_ch, name="readout", freq=self.readout_frequency, gen_ch=self.res_ch
             )
             # if self.adc_ch_type == 'dyn':
-            self.send_readoutconfig(ch=self.adc_ch, name="readout", t=0)
+            self.send_readoutconfig(ch=self.adc_ch, name="readout", t=0)#self.trig_offset)
 
         elif self.adc_ch_type == "std":
             self.declare_readout(
@@ -344,6 +344,7 @@ class MMProgram(AveragerProgramV2, MMBase):
         self.pulse(ch=self.res_ch, name="readout_pulse", t=0.0)
         # print('finished pulsing the resonator')
         # Trigger data acquisition
+        print('triggering readout at time', self.trig_offset)
         self.trigger(
             ros=[self.adc_ch],
             pins=[0],

@@ -66,6 +66,11 @@ class PulseProbeSpectroscopyProgram(MMProgram):
         # Apply the main pulse
         self.pulse(ch=self.cfg.expt.probe_pulse_param.chan, name="probe_pulse", t=0)
         # print('applied main pulse')
+        if self.cfg.expt.get("postpulse", False):
+            for pname in self.cfg.expt.postpulse:
+                self.pulse(ch=self.cfg.expt.postpulse[pname].chan, name=pname, t=0)
+                print('Applied postpulse: ', pname)
+                self.delay_auto(t=0.01, tag="wait_postpulse" + pname)
         
         self.measure_wrapper()
 
