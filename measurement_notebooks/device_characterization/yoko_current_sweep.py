@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from IPython.display import display, clear_output
 from slab.instruments import YokogawaGS200
+import time 
 
 
 # ════════════════════════════════════════════════════════════
@@ -24,23 +25,61 @@ def connect_yoko(address='10.108.30.37'):
     return dcflux
 
 
-def set_current_mA(dcflux, current_mA):
-    """Set Yokogawa output current in mA."""
-    dcflux.set_current(current_mA * 1e-3)
 
 
-def ramp_current_mA(dcflux, target_mA, n_steps=20, delay_s=0.05):
+
+# default ramp speed — change this once at the top of your notebook if needed
+DEFAULT_RAMP_SPEED_mA_PER_S = 0.01   # mA/s
+
+
+def set_current_mA(dcflux, target_mA, ramp_speed_mA_per_s=DEFAULT_RAMP_SPEED_mA_PER_S):
     """
-    Ramp current slowly from current value to target.
-    Safer than jumping directly — avoids flux jumps.
+    Ramp Yokogawa output current to target_mA at ramp_speed_mA_per_s.
+    Replaces the old instant set — always ramps safely.
+
+    Parameters
+    ----------
+    dcflux              : YokogawaGS200
+    target_mA           : float — target current [mA]
+    ramp_speed_mA_per_s : float — ramp rate [mA/s], default 0.1 mA/s
     """
-    import time
     current_now_mA = dcflux.get_current() * 1e3
+    delta_mA       = abs(target_mA - current_now_mA)
+
+    if delta_mA < 1e-6:
+        return   # already there
+
+    # number of steps: at least 2, step size ~0.001 mA
+    step_size_mA = 0.01
+    n_steps      = max(2, int(round(delta_mA / step_size_mA)))
+    delay_s      = (delta_mA / ramp_speed_mA_per_s) / n_steps
+
     ramp = np.linspace(current_now_mA, target_mA, n_steps)
     for val in ramp:
         dcflux.set_current(val * 1e-3)
         time.sleep(delay_s)
-    print(f'Ramped to {target_mA:.4f} mA')
+
+
+def ramp_current_mA(dcflux, target_mA, ramp_speed_mA_per_s=DEFAULT_RAMP_SPEED_mA_PER_S):
+    """
+    Ramp Yokogawa output current to target_mA at ramp_speed_mA_per_s.
+    Prints start/end current for visibility.
+
+    Parameters
+    ----------
+    dcflux              : YokogawaGS200
+    target_mA           : float — target current [mA]
+    ramp_speed_mA_per_s : float — ramp rate [mA/s], default 0.1 mA/s
+    """
+    current_now_mA = dcflux.get_current() * 1e3
+    delta_mA       = abs(target_mA - current_now_mA)
+    eta_s          = delta_mA / ramp_speed_mA_per_s if ramp_speed_mA_per_s > 0 else 0
+
+    print(f'Ramping {current_now_mA:.4f} → {target_mA:.4f} mA  '
+          f'({ramp_speed_mA_per_s} mA/s, ETA {eta_s:.1f}s)')
+
+    set_current_mA(dcflux, target_mA, ramp_speed_mA_per_s)
+    print(f'Done. Current: {dcflux.get_current()*1e3:.4f} mA')
 
 
 # ════════════════════════════════════════════════════════════

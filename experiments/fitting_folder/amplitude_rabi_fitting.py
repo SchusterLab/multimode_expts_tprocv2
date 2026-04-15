@@ -3,133 +3,160 @@ from .fitting import *
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class AmplitudeRabiFitting(GeneralFitting):
-    def __init__(self, data, readout_per_round=2, threshold=-4.0, config=None, fitparams=None, station=None):
+    def __init__(self, data, readout_per_round=2, threshold=-4.0, config=None,
+                 fitparams=None, station=None, sweep='amp'):
+        """
+        Parameters
+        ----------
+        sweep : str — 'amp' (default) or 'length'
+            Controls x-axis label, title, and which result keys are populated.
+        """
         super().__init__(data, readout_per_round, threshold, config, station)
         self.fitparams = fitparams
-        self.results = {}
+        self.results   = {}
+        self.sweep     = sweep   # 'amp' or 'length'
+
+    # ── internal helpers ──────────────────────────────────────────────────────
+
+    def _get_pi_hpi_from_fit(self, p):
+        """Extract pi and pi/2 point from a decaysin fit parameter vector."""
+        phase = p[2]
+        if phase > 180:
+            phase -= 360
+        elif phase < -180:
+            phase += 360
+        if np.abs(phase - 90) > np.abs(phase + 90):
+            pi_val  = (1 / 4 - phase / 360) / p[1]
+            hpi_val = (0     - phase / 360) / p[1]
+        else:
+            pi_val  = (3 / 4 - phase / 360) / p[1]
+            hpi_val = (1 / 2 - phase / 360) / p[1]
+        return pi_val, hpi_val
+
+    # ── public API ────────────────────────────────────────────────────────────
 
     def analyze(self, data=None, fit=True, fitparams=None, **kwargs):
-        """[yscale, freq, phase_deg, decay, y0, x0]"""
+        """
+        Fit a decaying sinusoid to amps, avgi, avgq.
+        Fit params: [yscale, freq, phase_deg, decay, y0, x0]
+
+        Populates data with:
+            fit_avgi, fit_avgq, fit_amps          — fit parameter vectors
+            fit_err_avgi, fit_err_avgq, fit_err_amps — covariance matrices
+            pi_{amp|length}_avgi/avgq/amps        — pi point
+            hpi_{amp|length}_avgi/avgq/amps       — pi/2 point
+        """
         if data is None:
             data = self.data
 
-        def get_pi_hpi_gain_from_fit(p):
-            if p[2] > 180:
-                p[2] = p[2] - 360
-            elif p[2] < -180:
-                p[2] = p[2] + 360
-            if np.abs(p[2] - 90) > np.abs(p[2] + 90):
-                pi_gain = (1 / 4 - p[2] / 360) / p[1]
-                hpi_gain = (0 - p[2] / 360) / p[1]
-            else:
-                pi_gain = (3 / 4 - p[2] / 360) / p[1]
-                hpi_gain = (1 / 2 - p[2] / 360) / p[1]
-            return pi_gain, hpi_gain
+        suffix = 'amp' if self.sweep == 'amp' else 'length'
 
         if fit:
-            xdata = data['xpts']
-            p_avgi, pCov_avgi = fitdecaysin(data['xpts'][:-1], data["avgi"][:-1], fitparams=fitparams)
-            p_avgq, pCov_avgq = fitdecaysin(data['xpts'][:-1], data["avgq"][:-1], fitparams=fitparams)
-            p_amps, pCov_amps = fitdecaysin(data['xpts'][:-1], data["amps"][:-1], fitparams=fitparams)
-            data['fit_avgi'] = p_avgi
-            data['fit_avgq'] = p_avgq
-            data['fit_amps'] = p_amps
-            data['fit_err_avgi'] = pCov_avgi
-            data['fit_err_avgq'] = pCov_avgq
-            data['fit_err_amps'] = pCov_amps
+            for key in ('avgi', 'avgq', 'amps'):
+                p, pCov = fitdecaysin(
+                    data['xpts'][:-1],
+                    data[key][:-1],
+                    fitparams=fitparams,
+                )
+                data[f'fit_{key}']     = p
+                data[f'fit_err_{key}'] = pCov
 
-            data['pi_gain_avgi'], data['hpi_gain_avgi'] = get_pi_hpi_gain_from_fit(p_avgi)
-            data['pi_gain_avgq'], data['hpi_gain_avgq'] = get_pi_hpi_gain_from_fit(p_avgq)
-            data['pi_gain_amps'], data['hpi_gain_amps'] = get_pi_hpi_gain_from_fit(p_amps)
-            
+                pi_val, hpi_val = self._get_pi_hpi_from_fit(p)
+                data[f'pi_{suffix}_{key}']  = pi_val
+                data[f'hpi_{suffix}_{key}'] = hpi_val
 
             self.results = {
-                'fit_avgi': p_avgi,
-                'fit_avgq': p_avgq,
-                'fit_amps': p_amps,
-                'fit_err_avgi': pCov_avgi,
-                'fit_err_avgq': pCov_avgq,
-                'fit_err_amps': pCov_amps,
-                'pi_gain_avgi': data['pi_gain_avgi'],
-                'hpi_gain_avgi': data['hpi_gain_avgi'],
-                'pi_gain_avgq': data['pi_gain_avgq'],
-                'hpi_gain_avgq': data['hpi_gain_avgq'],
-                'pi_gain_amps': data['pi_gain_amps'],
-                'hpi_gain_amps': data['hpi_gain_amps'],
+                'fit_avgi'              : data['fit_avgi'],
+                'fit_avgq'              : data['fit_avgq'],
+                'fit_amps'              : data['fit_amps'],
+                'fit_err_avgi'          : data['fit_err_avgi'],
+                'fit_err_avgq'          : data['fit_err_avgq'],
+                'fit_err_amps'          : data['fit_err_amps'],
+                f'pi_{suffix}_avgi'     : data[f'pi_{suffix}_avgi'],
+                f'hpi_{suffix}_avgi'    : data[f'hpi_{suffix}_avgi'],
+                f'pi_{suffix}_avgq'     : data[f'pi_{suffix}_avgq'],
+                f'hpi_{suffix}_avgq'    : data[f'hpi_{suffix}_avgq'],
+                f'pi_{suffix}_amps'     : data[f'pi_{suffix}_amps'],
+                f'hpi_{suffix}_amps'    : data[f'hpi_{suffix}_amps'],
             }
         return data
 
-    def display(self, data=None, fit=True, fitparams=None, vlines=None, hlines=None, save_fig=False, title_str='AmpRabi', ylim=None, **kwargs):
+    def display(self, data=None, fit=True, fitparams=None, vlines=None,
+                hlines=None, save_fig=False, title_str=None, ylim=None, **kwargs):
         if data is None:
             data = self.data
 
-        xpts = data["xpts"][1:-1]
-        xpts_fit = data["xpts"][0:-1]
+        suffix    = 'amp' if self.sweep == 'amp' else 'length'
+        xlabel    = 'Gain [DAC units]' if self.sweep == 'amp' else 'Length [us]'
+        pi_label  = 'π gain'   if self.sweep == 'amp' else 'π length'
+        hpi_label = 'π/2 gain' if self.sweep == 'amp' else 'π/2 length'
+
+        if title_str is None:
+            if self.sweep == 'amp':
+                title_str = f'AmpRabi (sigma={getattr(self.cfg.expt, "sigma_test", "?")})'
+            else:
+                title_str = f'LenRabi (gain={getattr(self.cfg.expt, "gain", "?")})'
+
+        xpts     = data['xpts'][1:-1]
+        xpts_fit = data['xpts'][0:-1]
 
         fig, axes = plt.subplots(3, 1, figsize=(6, 6), sharex=True)
-
-        components = [('amps', 'Amplitude [ADC units]'), ('avgi', 'I [ADC units]'), ('avgq', 'Q [ADC units]')]
+        components = [
+            ('amps', 'Amplitude [ADC units]'),
+            ('avgi', 'I [ADC units]'),
+            ('avgq', 'Q [ADC units]'),
+        ]
 
         for i, (key, ylabel) in enumerate(components):
             ax = axes[i]
-            ax.plot(xpts, data[key][1:-1], 'o-', label="Data", alpha=0.7)
+            ax.plot(xpts, data[key][1:-1], 'o-', label='Data', alpha=0.7)
             ax.set_ylabel(ylabel)
 
             if ylim is not None:
                 ax.set_ylim(ylim)
 
             if i == 0:
-                ax.set_title(f"{title_str} (Pulse Length {self.cfg.expt.sigma_test})")
+                ax.set_title(title_str)
 
             if fit and f'fit_{key}' in data:
                 p = data[f'fit_{key}']
-                ax.plot(xpts_fit, decaysin(xpts_fit, *p), label="Fit", lw=2)
+                ax.plot(xpts_fit, decaysin(xpts_fit, *p), label='Fit', lw=2)
 
-                pi_gain = data[f'pi_gain_{key}']
-                hpi_gain = data[f'hpi_gain_{key}']
+                pi_val  = data.get(f'pi_{suffix}_{key}')
+                hpi_val = data.get(f'hpi_{suffix}_{key}')
 
-                ax.axvline(pi_gain, color='r', ls='--', alpha=0.6, label=rf'$\pi$ gain: {pi_gain:.3f}')
-                ax.axvline(hpi_gain, color='g', ls='--', alpha=0.6, label=rf'$\pi/2$ gain: {hpi_gain:.3f}')
+                if pi_val is not None:
+                    ax.axvline(pi_val,  color='r', ls='--', alpha=0.6,
+                               label=rf'${pi_label}$: {pi_val:.4f}')
+                if hpi_val is not None:
+                    ax.axvline(hpi_val, color='g', ls='--', alpha=0.6,
+                               label=rf'${hpi_label}$: {hpi_val:.4f}')
 
+            # vlines
             if vlines is not None:
-                # Support several formats for vlines:
-                # - list of values: [v1, v2, ...]
-                # - list of (value, color) tuples: [(v1, 'r'), (v2, 'g')]
-                # - dict mapping value->color: {v1: 'r', v2: 'g'}
-                cmap = plt.cm.tab10
-                if isinstance(vlines, dict):
-                    items = list(vlines.items())
-                else:
-                    items = list(vlines)
+                cmap  = plt.cm.tab10
+                items = list(vlines.items()) if isinstance(vlines, dict) else list(vlines)
+                for vidx, item in enumerate(items):
+                    val, col = item if (isinstance(item, (list, tuple)) and len(item) == 2) \
+                                    else (item, cmap(vidx % 10))
+                    ax.axvline(val, color=col, ls=':', alpha=0.7, lw=1.5,
+                               label=f'Vline: {val}')
 
-                for idx, item in enumerate(items):
-                    if isinstance(item, (list, tuple)) and len(item) == 2:
-                        val, col = item
-                    else:
-                        val = item
-                        col = cmap(idx % 10)
-                    ax.axvline(val, color=col, linestyle=':', alpha=0.7, linewidth=1.5, label=f'Vline: {val}')
-
+            # hlines
             if hlines is not None:
-                # Support same formats as vlines
-                cmap = plt.cm.tab10
-                if isinstance(hlines, dict):
-                    items = list(hlines.items())
-                else:
-                    items = list(hlines)
+                cmap  = plt.cm.tab10
+                items = list(hlines.items()) if isinstance(hlines, dict) else list(hlines)
+                for hidx, item in enumerate(items):
+                    val, col = item if (isinstance(item, (list, tuple)) and len(item) == 2) \
+                                    else (item, cmap(hidx % 10))
+                    ax.axhline(val, color=col, ls=':', alpha=0.7, lw=1.5,
+                               label=f'Hline: {val}')
 
-                for idx, item in enumerate(items):
-                    if isinstance(item, (list, tuple)) and len(item) == 2:
-                        val, col = item
-                    else:
-                        val = item
-                        col = cmap(idx % 10)
-                    ax.axhline(val, color=col, linestyle=':', alpha=0.7, linewidth=1.5, label=f'Hline: {val}')
-                
             ax.legend(loc='best', fontsize='small')
 
-        axes[-1].set_xlabel("Gain [DAC units]")
+        axes[-1].set_xlabel(xlabel)
         plt.tight_layout()
         plt.show()
 

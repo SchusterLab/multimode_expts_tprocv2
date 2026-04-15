@@ -54,17 +54,20 @@ class PulseProbeSpectroscopyProgram(MMProgram):
             for pname in self.prepulse_names:
                 print(pname)
                 self.pulse(ch=self.cfg.expt.prepulse[pname].chan, name=pname, t=0)#self.cfg.expt.prepulse[pname].t)
+                self.delay_auto(t=0.01, tag="wait_prepulse" + pname)
                 # Run delay by default. Only skip delay when delay_flag is explicitly False.
-                delay_flag = self.cfg.expt.prepulse[pname].get("delay_flag", None)
-                if delay_flag is False:
-                    # explicit instruction to skip delay
-                    pass
-                else:
-                    self.delay_auto(t=0.01, tag="wait_prepulse" + pname)
-                    print('delayiong after prepulse', pname)
+                # delay_flag = self.cfg.expt.prepulse[pname].get("delay_flag", None)
+                # if delay_flag is False:
+                #     # explicit instruction to skip delay
+                #     pass
+                # else:
+                #     self.delay_auto(t=0.01, tag="wait_prepulse" + pname)
+                #     print('delayiong after prepulse', pname)
 
         # Apply the main pulse
+        self.delay_auto(t=0.01, tag="wait_before_main_pulse")
         self.pulse(ch=self.cfg.expt.probe_pulse_param.chan, name="probe_pulse", t=0)
+        self.delay_auto(t=0.01, tag="wait_after_main_pulse")
         # print('applied main pulse')
         if self.cfg.expt.get("postpulse", False):
             for pname in self.cfg.expt.postpulse:

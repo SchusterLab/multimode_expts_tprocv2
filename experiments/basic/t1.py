@@ -23,18 +23,19 @@ class T1Program(MMProgram):
         self.initialize_non_readout_channels()
         self.initialize_waveforms()
 
-        pulse = {
-            "sigma": self.cfg.expt.sigma,
-            "sigma_inc": self.cfg.expt.sigma_inc,
-            "freq": self.cfg.expt.freq,
-            "gain": self.cfg.expt.gain,
-            "phase": 0,
-            "type": self.cfg.expt.type,
-        }
-        print(pulse)
+        if self.cfg.expt.get("qubit_pulse", True):
+            pulse = {
+                "sigma": self.cfg.expt.sigma,
+                "sigma_inc": self.cfg.expt.sigma_inc,
+                "freq": self.cfg.expt.freq,
+                "gain": self.cfg.expt.gain,
+                "phase": 0,
+                "type": self.cfg.expt.type,
+            }
+            print(pulse)
 
-        # Create π pulse to excite qubit to |e⟩
-        super().make_pulse(pulse, "pi_prep")
+            # Create π pulse to excite qubit to |e⟩
+            super().make_pulse(pulse, "pi_prep")
 
         self.initialize_multiple_loops()
 
@@ -52,7 +53,8 @@ class T1Program(MMProgram):
             self.send_readoutconfig(ch=self.adc_ch, name="readout", t=0)
 
         # π pulse to excite qubit from |g⟩ to |e⟩
-        self.pulse(ch=self.qubit_ch, name="pi_prep", t=0.0)
+        if self.cfg.expt.get("qubit_pulse", True):
+            self.pulse(ch=self.qubit_ch, name="pi_prep", t=0.0)
 
         # Wait time — qubit decays from |e⟩ back toward |g⟩
         self.delay_auto(t=cfg.expt.wait_time, tag="wait")

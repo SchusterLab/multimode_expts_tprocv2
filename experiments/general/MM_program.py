@@ -185,10 +185,17 @@ class MMProgram(AveragerProgramV2, MMBase):
                 ch=self.manipulate_ch, nqz=self.manipulate_nqz
             )  # Declare manipulation signal generator  
             
-        if "storage_in" in self.cfg.hw.soc.dacs:
+        # if "storage_in" in self.cfg.hw.soc.dacs:
+        #     # Set up storage channel
+        #     self.declare_gen(
+        #         ch=self.storage_ch, nqz=self.storage_nqz
+        #     )  # Declare storage signal generator
+        
+        # declare flux ch 
+        if "flux" in self.cfg.hw.soc.dacs:
             # Set up storage channel
             self.declare_gen(
-                ch=self.storage_ch, nqz=self.storage_nqz
+                ch=self.flux_ch, nqz=self.flux_nqz
             )  # Declare storage signal generator
 
     def initialize_waveforms(self):
@@ -416,33 +423,35 @@ class MMProgram(AveragerProgramV2, MMBase):
             )
             pulse_args["envelope"] = "ramp_" + str(name)  # Use Gaussian envelope
 
-        # elif pulse.type == "flat_top":
-        #     # Flat-top pulse with Gaussian rise/fall
+        elif pulse.type == "flat_top":
+            # Flat-top pulse with Gaussian rise/fall
 
-        #     # Determine pulse length
-        #     if "length" in pulse:
-        #         length = pulse.length
-        #     else:
-        #         length = pulse.sigma
+            # Determine pulse length
+            print('creating flat top pulse')    
+            if "length" in pulse:
+                length = pulse.length
+            else:
+                length = pulse.sigma
 
-        #     style = "flat_top"
+            style = "flat_top"
 
-        #     # Create Gaussian ramp for rise/fall
-        #     if "ramp_sigma" not in pulse:
-        #         pulse.ramp_sigma = 0.02
-        #     if "ramp_sigma_inc" not in pulse:
-        #         pulse.ramp_sigma_inc = 3
-        #     ramp_length = pulse.ramp_sigma * pulse.ramp_sigma_inc
+            # Create Gaussian ramp for rise/fall
+            if "ramp_sigma" not in pulse:
+                pulse.ramp_sigma = 0.02
+            if "ramp_sigma_inc" not in pulse:
+                pulse.ramp_sigma_inc = 4
+            ramp_length = pulse.ramp_sigma * pulse.ramp_sigma_inc
+            print('adding gaussian ramp with sigma', pulse.ramp_sigma, 'and length', ramp_length)
 
-        #     self.add_gauss(
-        #         ch=pulse.chan,
-        #         name="ramp",
-        #         sigma=pulse.ramp_sigma,  # Width of rise/fall
-        #         length=ramp_length,  # Length of rise/fall
-        #         even_length=True,
-        #     )
-        #     pulse_args["envelope"] = "ramp"  # Use Gaussian envelope for edges
-        #     pulse_args["length"] = length  # Total pulse length (this is of the flat part?)
+            self.add_gauss(
+                ch=pulse.chan,
+                name="ramp",
+                sigma=pulse.ramp_sigma,  # Width of rise/fall
+                length=pulse.ramp_sigma*4,  # Length of rise/fall
+                even_length=True,
+            )
+            pulse_args["envelope"] = "ramp"  # Use Gaussian envelope for edges
+            pulse_args["length"] = length  # Total pulse length (this is of the flat part?)
 
         else:
             # Default: Constant amplitude pulse

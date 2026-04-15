@@ -243,13 +243,14 @@ def do_rabi(
     max_gain=1.0, max_length=10.0,
     sweep_other_param={},
 ):
+    step = (max_gain - start) / expts if sweep == 'amp' else (max_length - start) / expts
     rabi = meas.RabiExperiment(cfg_dict=cfg_dict, prefix='RabiExperiment', go=False)
     rabi.cfg = AttrDict(deepcopy(config_thisrun))
     rabi.cfg.expt = dict(
         start=start, max_gain=max_gain, max_length=max_length,
         expts=expts, reps=reps, rounds=rounds, sigma_test=None,
         sweep=sweep, chan=chan, freq=freq, type=pulse_type,
-        gain=gain, sigma=sigma, step=(max_gain - start) / expts,
+        gain=gain, sigma=sigma, step=step,
         sigma_inc=sigma_inc, length=length,
         ramp_sigma=ramp_sigma, ramp_sigma_inc=ramp_sigma_inc,
         prepulse=prepulse, postpulse=postpulse, n_pulses=n_pulses,
@@ -258,7 +259,7 @@ def do_rabi(
     )
     rabi.go(analyze=False, display=False, progress=True, save=True)
     return meas.AmplitudeRabiFitting(rabi.data, readout_per_round=4,
-                                     config=rabi.cfg, station=station)
+                                     config=rabi.cfg, station=station, sweep = sweep)
 
 
 def update_amplitude_rabi_ge(amprabi, config_thisrun):
@@ -285,6 +286,7 @@ def do_t1(
     expts=201, reps=200, rounds=1,
     sigma=None, sigma_inc=None, freq=None, gain=None,
     pulse_type=None, analyze_and_display=True,
+    qubit_pulse = True,
 ):
     t1 = meas.T1Experiment(cfg_dict=cfg_dict, prefix='T1Experiment', go=False)
     t1.cfg = AttrDict(deepcopy(config_thisrun))
@@ -296,7 +298,7 @@ def do_t1(
     t1.cfg.expt = dict(start=start, step=step_size, expts=expts, reps=reps,
                        rounds=rounds, prepulse=prepulse,
                        sigma=sigma, sigma_inc=sigma_inc, freq=freq, gain=gain,
-                       phase=0, type=pulse_type, wait_time=0.0, sweep_other_param={})
+                       phase=0, type=pulse_type, wait_time=0.0, sweep_other_param={}, qubit_pulse=qubit_pulse)
     t1.go(analyze=False, display=False, progress=True, save=True)
     if not analyze_and_display:
         return t1

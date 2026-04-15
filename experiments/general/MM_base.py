@@ -22,16 +22,16 @@ class MMBase:
 
         # Manipulation & Storage
         self.manipulate_ch, self.manipulate_ch_type = cfg.hw.soc.dacs.manipulate_in.ch, cfg.hw.soc.dacs.manipulate_in.type
-        self.storage_ch, self.storage_ch_type = cfg.hw.soc.dacs.storage_in.ch, cfg.hw.soc.dacs.storage_in.type
-        self.f0g1_ch, self.f0g1_ch_type = cfg.hw.soc.dacs.qubit_sideband.ch, cfg.hw.soc.dacs.qubit_sideband.type
+        # self.storage_ch, self.storage_ch_type = cfg.hw.soc.dacs.storage_in.ch, cfg.hw.soc.dacs.storage_in.type
+        # self.f0g1_ch, self.f0g1_ch_type = cfg.hw.soc.dacs.qubit_sideband.ch, cfg.hw.soc.dacs.qubit_sideband.type
         
         # Flux
-        self.flux_low_ch, self.flux_low_ch_type = cfg.hw.soc.dacs.flux_low.ch, cfg.hw.soc.dacs.flux_low.type
-        self.flux_high_ch, self.flux_high_ch_type = cfg.hw.soc.dacs.flux_high.ch, cfg.hw.soc.dacs.flux_high.type
+        self.flux_ch, self.flux_ch_type = cfg.hw.soc.dacs.flux.ch, cfg.hw.soc.dacs.flux.type
+        # self.flux_high_ch, self.flux_high_ch_type = cfg.hw.soc.dacs.flux_high.ch, cfg.hw.soc.dacs.flux_high.type
 
         # ----------- Hardware Filter/Attentuation -----------
         # Added from second version of parse_config
-        for name in ['res', 'qubit', 'adc', 'manipulate']:
+        for name in ['res', 'qubit', 'adc', 'manipulate', 'flux']:
             src = cfg.hw.soc.dacs.readout if name == 'res' else \
                 cfg.hw.soc.dacs.qubit if name == 'qubit' else \
                 cfg.hw.soc.adcs.readout if name == 'adc' else \
@@ -46,8 +46,9 @@ class MMBase:
         self.res_nqz = cfg.hw.soc.dacs.readout.nyquist
         self.qubit_nqz = cfg.hw.soc.dacs.qubit.nyquist
         self.manipulate_nqz = cfg.hw.soc.dacs.manipulate_in.nyquist
-        self.f0g1_nqz = cfg.hw.soc.dacs.qubit_sideband.nyquist
-        self.storage_nqz = cfg.hw.soc.dacs.storage_in.nyquist
+        # self.f0g1_nqz = cfg.hw.soc.dacs.qubit_sideband.nyquist
+        # self.storage_nqz = cfg.hw.soc.dacs.storage_in.nyquist
+        self.flux_nqz = cfg.hw.soc.dacs.flux.nyquist
 
         # ----------- Frequencies & Readout -----------
         self.f_ge, self.f_ef = cfg.device.qubit.f_ge, cfg.device.qubit.f_ef

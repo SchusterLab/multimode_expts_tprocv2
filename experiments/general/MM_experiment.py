@@ -131,6 +131,13 @@ class MMExperiment(Experiment, MMBase):
                                                             self.manipulate_bw,
                                                             self.manipulate_att[0],
                                                             self.manipulate_att[1])
+        # flux 
+        _ = set_dac_filter_and_att(self.flux_ch,
+                                                                self.flux_ftype, 
+                                                                self.flux_fc,
+                                                                self.flux_bw,
+                                                                self.flux_att[0],
+                                                                self.flux_att[1])
         
 
     def set_filter_custom(self, gen_ch, ro_ch, lpf, hpf, state=0):
